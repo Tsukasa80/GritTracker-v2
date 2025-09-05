@@ -9,12 +9,13 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* オリジナルのオレンジ・ブルー配色を復元 */
+        /* 緑・白・黒系統配色 */
         :root {
-            --color-orange: #f5751e;
-            --color-orange-light: #fbb977;
-            --color-blue: #0ea5e9;
-            --color-blue-dark: #0284c7;
+            --color-green: #22c55e;
+            --color-green-light: #4ade80;
+            --color-green-dark: #16a34a;
+            --color-black: #1f2937;
+            --color-gray-dark: #374151;
         }
         
         /* スライダーのカスタムスタイル */
@@ -32,7 +33,7 @@
             height: 24px !important;
             width: 24px !important;
             border-radius: 50% !important;
-            background: linear-gradient(45deg, #f5751e, #0ea5e9) !important;
+            background: linear-gradient(45deg, #22c55e, #1f2937) !important;
             cursor: pointer !important;
             border: 2px solid #ffffff !important;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
@@ -49,7 +50,7 @@
             height: 24px !important;
             width: 24px !important;
             border-radius: 50% !important;
-            background: linear-gradient(45deg, #f5751e, #0ea5e9) !important;
+            background: linear-gradient(45deg, #22c55e, #1f2937) !important;
             cursor: pointer !important;
             border: 2px solid #ffffff !important;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
@@ -59,45 +60,45 @@
         .slider::-webkit-slider-track {
             height: 12px !important;
             border-radius: 6px !important;
-            background: linear-gradient(to right, #f5751e, #fbb977, #0ea5e9) !important;
+            background: linear-gradient(to right, #22c55e, #4ade80, #1f2937) !important;
         }
         
         .slider::-moz-range-track {
             height: 12px !important;
             border-radius: 6px !important;
-            background: linear-gradient(to right, #f5751e, #fbb977, #0ea5e9) !important;
+            background: linear-gradient(to right, #22c55e, #4ade80, #1f2937) !important;
             border: none !important;
         }
         
         /* カスタムクラス */
         .bg-grit-gradient {
-            background: linear-gradient(135deg, #f5751e 0%, #fbb977 50%, #0ea5e9 100%);
+            background: linear-gradient(135deg, #22c55e 0%, #4ade80 50%, #1f2937 100%);
         }
         
         .btn-grit {
-            background: linear-gradient(135deg, #f5751e, #0ea5e9);
+            background: linear-gradient(135deg, #22c55e, #1f2937);
             transition: all 0.2s ease;
         }
         
         .btn-grit:hover {
-            background: linear-gradient(135deg, #e65814, #0284c7);
+            background: linear-gradient(135deg, #16a34a, #374151);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(245, 117, 30, 0.3);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
         }
         
         .text-grit-gradient {
-            background: linear-gradient(135deg, #f5751e, #0ea5e9);
+            background: linear-gradient(135deg, #22c55e, #1f2937);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
-        .text-grit-primary { color: #f5751e; }
-        .text-grit-secondary { color: #0ea5e9; }
-        .bg-grit-primary { background-color: #f5751e; }
-        .bg-grit-secondary { background-color: #0ea5e9; }
-        .border-grit-primary { border-color: #f5751e; }
-        .border-grit-secondary { border-color: #0ea5e9; }
+        .text-grit-primary { color: #22c55e; }
+        .text-grit-secondary { color: #1f2937; }
+        .bg-grit-primary { background-color: #22c55e; }
+        .bg-grit-secondary { background-color: #1f2937; }
+        .border-grit-primary { border-color: #22c55e; }
+        .border-grit-secondary { border-color: #1f2937; }
     </style>
 </head>
 <body>
@@ -380,10 +381,10 @@
                                     </div>
                                     
                                     {rewardProgress >= 100 && (
-                                        <div className="text-center py-4 bg-orange-50 rounded-2xl border border-orange-200">
+                                        <div className="text-center py-4 bg-green-50 rounded-2xl border border-green-200">
                                             <span className="text-3xl mb-2 block">🎉</span>
-                                            <span className="text-xl font-bold text-orange-800">おめでとうございます！</span>
-                                            <p className="text-orange-600 mt-1">ご褒美をゲットしました！</p>
+                                            <span className="text-xl font-bold text-green-800">おめでとうございます！</span>
+                                            <p className="text-green-600 mt-1">ご褒美をゲットしました！</p>
                                         </div>
                                     )}
                                 </div>
@@ -411,7 +412,7 @@
                                                         <div className="flex items-center space-x-6 text-sm text-gray-600 mb-3">
                                                             <span>📅 {log.date}</span>
                                                             <span>⏱️ {log.enduredTime}分</span>
-                                                            <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">
+                                                            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
                                                                 苦しさ: {log.difficultyScore}/10
                                                             </span>
                                                         </div>
@@ -571,7 +572,7 @@
 
                                 {/* 耐久スコア表示 */}
                                 {formData.enduredTime > 0 && (
-                                    <div className="bg-orange-50 p-6 rounded-xl border border-orange-200 text-center">
+                                    <div className="bg-green-50 p-6 rounded-xl border border-green-200 text-center">
                                         <div className="text-2xl mb-2">📊</div>
                                         <h3 className="text-xl font-bold text-gray-800 mb-2">予想獲得ポイント</h3>
                                         <div className="text-4xl font-extrabold text-grit-primary mb-2">
@@ -607,7 +608,7 @@
                                                 onChange={() => setFormData({ ...formData, wasSuccessful: false })}
                                                 className="w-4 h-4"
                                             />
-                                            <span className="text-orange-700 font-semibold">💪 途中・挑戦中</span>
+                                            <span className="text-gray-700 font-semibold">💪 途中・挑戦中</span>
                                         </label>
                                     </div>
                                 </div>
@@ -760,7 +761,7 @@
                                                     onClick={() => toggleBestLog(log.id)}
                                                     className={`border-2 rounded-xl p-6 cursor-pointer transition-all hover:shadow-lg ${
                                                         selectedBestLogs.includes(log.id)
-                                                            ? 'border-grit-primary bg-orange-50'
+                                                            ? 'border-grit-primary bg-green-50'
                                                             : 'border-gray-200 hover:border-grit-primary bg-white'
                                                     }`}
                                                 >
@@ -784,12 +785,12 @@
                                                             <div className="flex items-center space-x-6 text-sm text-gray-600 mb-3 ml-11">
                                                                 <span>📅 {log.date}</span>
                                                                 <span>⏱️ {formatTimeFromMinutes(log.enduredTime)}</span>
-                                                                <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">
+                                                                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
                                                                     苦しさ: {log.difficultyScore}/10
                                                                 </span>
                                                                 {log.wasSuccessful !== undefined && (
                                                                     <span className={`px-3 py-1 rounded-full font-semibold text-sm ${
-                                                                        log.wasSuccessful ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                                                        log.wasSuccessful ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                                                                     }`}>
                                                                         {log.wasSuccessful ? '✅ 完了' : '💪 途中'}
                                                                     </span>
@@ -815,7 +816,7 @@
                                     )}
                                     
                                     {thisWeekLogs.length > 0 && (
-                                        <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                                        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl">
                                             <div className="flex items-center text-sm text-gray-800">
                                                 <span className="mr-2">⭐</span>
                                                 <span className="font-semibold">
@@ -1086,7 +1087,7 @@
                                                     reward.isCompleted
                                                         ? 'border-green-300 bg-green-50'
                                                         : cumulativeScore >= reward.targetScore
-                                                        ? 'border-grit-primary bg-orange-50 animate-pulse'
+                                                        ? 'border-grit-primary bg-green-50 animate-pulse'
                                                         : 'border-gray-200 bg-white hover:border-grit-primary'
                                                 }`}
                                             >
@@ -1187,8 +1188,8 @@
                                                                     </div>
                                                                 </div>
                                                             ) : cumulativeScore >= reward.targetScore ? (
-                                                                <div className="bg-orange-50 p-4 rounded-xl border border-orange-200">
-                                                                    <div className="text-orange-700 font-bold text-lg flex items-center space-x-2">
+                                                                <div className="bg-green-50 p-4 rounded-xl border border-green-200">
+                                                                    <div className="text-green-700 font-bold text-lg flex items-center space-x-2">
                                                                         <span>🎉</span>
                                                                         <span>おめでとうございます！ご褒美をゲットしました！</span>
                                                                     </div>
@@ -1393,7 +1394,7 @@
                                     <span>🎉 自己肯定感UP</span>
                                 </div>
                                 <div className="mt-4 text-center text-gray-500 text-sm">
-                                    🎨 オリジナルのオレンジ・ブルー配色復元<br/>
+                                    🎨 緑・白・黒系統の美しい配色<br/>
                                     💾 データはブラウザに保存されます ({gritLogs.length}件記録済)
                                 </div>
                             </div>
