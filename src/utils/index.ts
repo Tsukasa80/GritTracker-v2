@@ -12,7 +12,11 @@ export const formatDate = (date: Date): string => {
 
 // 今日の日付を取得
 export const getTodayDate = (): string => {
-  return formatDate(new Date());
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 // 週の開始日（月曜日）を取得
