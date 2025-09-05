@@ -5,7 +5,7 @@ import path from 'path'
 export default defineConfig(({ command }) => ({
   plugins: [react()],
   root: path.resolve(__dirname),
-  base: command === 'serve' ? '/' : './', // 開発時は '/'、GitHub Pagesビルド時は './' (相対パス)
+  base: command === 'serve' ? '/' : '/GritTracker-v2/', // 開発時は '/'、GitHub Pages時は '/GritTracker-v2/'
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
