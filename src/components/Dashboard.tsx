@@ -92,8 +92,9 @@ const Dashboard: React.FC = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-grit-500 to-grit-600 rounded-full mb-4 shadow-lg">
             <span className="text-3xl">🏆</span>
           </div>
-          <h1 className="text-4xl font-bold mb-3 tracking-wide text-grit-700">
-            GritTracker ダッシュボード
+          <h1 className="text-4xl font-bold mb-3 tracking-wide text-grit-700 text-center">
+            GritTracker<br/>
+            ダッシュボード
           </h1>
           <p className="text-grit-600 text-lg font-medium">あなたの粘り力を可視化して、成長を実感しましょう</p>
           <div className="w-24 h-1 bg-gradient-to-r from-grit-500 to-grit-600 mx-auto mt-4 rounded-full"></div>
