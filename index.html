@@ -435,6 +435,87 @@
                                 )}
                             </div>
 
+                            {/* データ管理 */}
+                            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl">
+                                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                    <span className="mr-3">💾</span>データ管理
+                                </h3>
+                                <p className="text-gray-600 mb-6">スマホとPCでデータを共有できます</p>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* エクスポート */}
+                                    <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                                        <h4 className="font-bold text-gray-800 mb-3 flex items-center">
+                                            <span className="mr-2">📤</span>データをエクスポート
+                                        </h4>
+                                        <p className="text-sm text-gray-600 mb-4">現在のデータを他の端末に移行できます</p>
+                                        <button
+                                            onClick={() => {
+                                                const data = localStorage.getItem('grit-tracker-storage');
+                                                if (data) {
+                                                    navigator.clipboard.writeText(data).then(() => {
+                                                        alert('✅ データをクリップボードにコピーしました！\n\n📱 他の端末で「データをインポート」に貼り付けてください。');
+                                                    }).catch(() => {
+                                                        const textarea = document.createElement('textarea');
+                                                        textarea.value = data;
+                                                        document.body.appendChild(textarea);
+                                                        textarea.select();
+                                                        document.execCommand('copy');
+                                                        document.body.removeChild(textarea);
+                                                        alert('✅ データをクリップボードにコピーしました！\n\n📱 他の端末で「データをインポート」に貼り付けてください。');
+                                                    });
+                                                } else {
+                                                    alert('❌ エクスポートするデータがありません。');
+                                                }
+                                            }}
+                                            className="w-full bg-blue-500 text-white px-4 py-3 rounded-xl hover:bg-blue-600 transition-colors font-semibold flex items-center justify-center space-x-2"
+                                        >
+                                            <span>📤</span>
+                                            <span>データをコピー</span>
+                                        </button>
+                                    </div>
+
+                                    {/* インポート */}
+                                    <div className="bg-green-50 p-6 rounded-xl border border-green-200">
+                                        <h4 className="font-bold text-gray-800 mb-3 flex items-center">
+                                            <span className="mr-2">📥</span>データをインポート
+                                        </h4>
+                                        <p className="text-sm text-gray-600 mb-4">他の端末からデータを読み込みます</p>
+                                        <button
+                                            onClick={() => {
+                                                const importData = prompt('📥 エクスポートしたデータを貼り付けてください:\n\n⚠️ 現在のデータは上書きされます。');
+                                                if (importData) {
+                                                    try {
+                                                        JSON.parse(importData);
+                                                        localStorage.setItem('grit-tracker-storage', importData);
+                                                        alert('✅ データのインポートが完了しました！\n\n🔄 ページを再読み込みします。');
+                                                        window.location.reload();
+                                                    } catch (e) {
+                                                        alert('❌ データ形式が正しくありません。\n\n正しいエクスポートデータを貼り付けてください。');
+                                                    }
+                                                }
+                                            }}
+                                            className="w-full bg-green-500 text-white px-4 py-3 rounded-xl hover:bg-green-600 transition-colors font-semibold flex items-center justify-center space-x-2"
+                                        >
+                                            <span>📥</span>
+                                            <span>データを読み込み</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* 使い方説明 */}
+                                <div className="mt-6 bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                                    <h5 className="font-bold text-gray-800 mb-2 flex items-center">
+                                        <span className="mr-2">💡</span>使い方
+                                    </h5>
+                                    <ol className="text-sm text-gray-700 space-y-1 pl-4">
+                                        <li>1. 📱 PC側で「データをコピー」をクリック</li>
+                                        <li>2. 📨 LINEやメールで自分に送信</li>
+                                        <li>3. 📱 スマホで受信して「データを読み込み」に貼り付け</li>
+                                    </ol>
+                                </div>
+                            </div>
+
                             {/* 励ましメッセージ */}
                             <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl text-center shadow-2xl">
                                 <div className="text-4xl mb-4">💪</div>
