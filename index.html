@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GritTracker v2.2.0 - 粘り力を可視化する</title>
+    <title>GritTracker v1.2.2 - 粘り力を可視化する</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* カスタム配色設定 */
         :root {
@@ -92,26 +91,19 @@
 
     <script type="text/babel">
         function App() {
-            const [activeTab, setActiveTab] = React.useState('ダッシュボード');
             const [difficulty, setDifficulty] = React.useState(3);
             const [comment, setComment] = React.useState('');
-            const [task, setTask] = React.useState('');
             const [records, setRecords] = React.useState([]);
-            const [rewards, setRewards] = React.useState([]);
 
-            // LocalStorageからデータを読み込み
+            // LocalStorageからデータを読み込み（バックグラウンド）
             React.useEffect(() => {
                 const savedRecords = localStorage.getItem('gritTrackerRecords');
                 if (savedRecords) {
                     setRecords(JSON.parse(savedRecords));
                 }
-                const savedRewards = localStorage.getItem('gritTrackerRewards');
-                if (savedRewards) {
-                    setRewards(JSON.parse(savedRewards));
-                }
             }, []);
 
-            // データ保存機能
+            // データ保存機能（バックグラウンド）
             const saveRecord = () => {
                 if (!comment.trim()) {
                     alert('コメントを入力してください！');
@@ -123,7 +115,6 @@
                     date: new Date().toISOString().split('T')[0],
                     time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
                     difficulty: parseInt(difficulty),
-                    task: task.trim() || '未入力',
                     comment: comment.trim(),
                     timestamp: new Date().toISOString()
                 };
@@ -134,444 +125,74 @@
                 
                 // フォームリセット
                 setComment('');
-                setTask('');
                 setDifficulty(3);
                 
                 alert('記録を保存しました！🎉');
-                setActiveTab('ダッシュボード');
             };
-
-            // 耐久スコア計算（苦しさレベル×重み付け）
-            const calculateEnduranceScore = (difficulty) => {
-                const scoreMap = { 1: 1, 2: 3, 3: 5, 4: 8, 5: 12 };
-                return scoreMap[difficulty] || 0;
-            };
-
-            // 統計情報計算
-            const getStats = () => {
-                if (records.length === 0) return { 
-                    total: 0, avgDifficulty: 0, streak: 0, today: 0, 
-                    weeklyScore: 0, totalScore: 0 
-                };
-                
-                const total = records.length;
-                const avgDifficulty = (records.reduce((sum, r) => sum + r.difficulty, 0) / total).toFixed(1);
-                
-                const today = new Date().toISOString().split('T')[0];
-                const todayRecords = records.filter(r => r.date === today).length;
-                
-                // 連続日数計算
-                const uniqueDates = [...new Set(records.map(r => r.date))].sort().reverse();
-                let streak = 0;
-                for (let i = 0; i < uniqueDates.length; i++) {
-                    const expectedDate = new Date();
-                    expectedDate.setDate(expectedDate.getDate() - i);
-                    if (uniqueDates[i] === expectedDate.toISOString().split('T')[0]) {
-                        streak++;
-                    } else {
-                        break;
-                    }
-                }
-                
-                // 耐久スコア計算
-                const totalScore = records.reduce((sum, r) => sum + calculateEnduranceScore(r.difficulty), 0);
-                
-                // 今週のスコア計算
-                const now = new Date();
-                const startOfWeek = new Date(now);
-                startOfWeek.setDate(now.getDate() - now.getDay()); // 日曜日から始まる週
-                startOfWeek.setHours(0, 0, 0, 0);
-                
-                const weeklyRecords = records.filter(r => {
-                    const recordDate = new Date(r.date);
-                    return recordDate >= startOfWeek;
-                });
-                const weeklyScore = weeklyRecords.reduce((sum, r) => sum + calculateEnduranceScore(r.difficulty), 0);
-                
-                return { total, avgDifficulty, streak, today: todayRecords, weeklyScore, totalScore };
-            };
-
-            // グラフ用データ生成
-            const getChartData = () => {
-                if (records.length === 0) return { dates: [], scores: [], habits: [] };
-                
-                // スコアの推移データ
-                const dateScoreMap = {};
-                records.forEach(record => {
-                    const date = record.date;
-                    if (!dateScoreMap[date]) {
-                        dateScoreMap[date] = 0;
-                    }
-                    dateScoreMap[date] += calculateEnduranceScore(record.difficulty);
-                });
-                
-                // 過去30日間のデータを生成
-                const dates = [];
-                const scores = [];
-                const habits = [];
-                
-                for (let i = 29; i >= 0; i--) {
-                    const date = new Date();
-                    date.setDate(date.getDate() - i);
-                    const dateStr = date.toISOString().split('T')[0];
-                    const dayScore = dateScoreMap[dateStr] || 0;
-                    
-                    dates.push(date.getMonth() + 1 + '/' + date.getDate());
-                    scores.push(dayScore);
-                    habits.push(dayScore > 0 ? 1 : 0);
-                }
-                
-                return { dates, scores, habits };
-            };
-
-            const stats = getStats();
-            const recentRecords = records.slice(0, 5);
-            const chartData = getChartData();
-            const difficultyLabels = ['楽', 'やや楽', '普通', 'きつい', '超きつい'];
-
-            // グラフ描画
-            React.useEffect(() => {
-                if (activeTab === 'ダッシュボード' && records.length > 0) {
-                    // 耐久スコアの推移グラフ
-                    const scoreCanvas = document.getElementById('scoreChart');
-                    if (scoreCanvas) {
-                        const existingChart = Chart.getChart(scoreCanvas);
-                        if (existingChart) existingChart.destroy();
-                        
-                        new Chart(scoreCanvas, {
-                            type: 'line',
-                            data: {
-                                labels: chartData.dates,
-                                datasets: [{
-                                    label: '耐久スコア',
-                                    data: chartData.scores,
-                                    borderColor: '#f59e0b',
-                                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                                    tension: 0.4,
-                                    fill: true
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true
-                                    }
-                                },
-                                plugins: {
-                                    legend: {
-                                        display: false
-                                    }
-                                }
-                            }
-                        });
-                    }
-                    
-                    // 習慣記録グラフ
-                    const habitCanvas = document.getElementById('habitChart');
-                    if (habitCanvas) {
-                        const existingChart = Chart.getChart(habitCanvas);
-                        if (existingChart) existingChart.destroy();
-                        
-                        new Chart(habitCanvas, {
-                            type: 'bar',
-                            data: {
-                                labels: chartData.dates,
-                                datasets: [{
-                                    label: '記録あり',
-                                    data: chartData.habits,
-                                    backgroundColor: chartData.habits.map(h => h > 0 ? '#22c55e' : '#e5e7eb'),
-                                    borderRadius: 4
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        max: 1,
-                                        ticks: {
-                                            stepSize: 1,
-                                            callback: function(value) {
-                                                return value === 1 ? 'あり' : 'なし';
-                                            }
-                                        }
-                                    }
-                                },
-                                plugins: {
-                                    legend: {
-                                        display: false
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-            }, [activeTab, records]);
 
             return (
-                <div className="min-h-screen bg-grit-gradient">
-                    {/* ナビゲーションバー */}
-                    <nav className="bg-white shadow-lg">
-                        <div className="max-w-6xl mx-auto px-4">
-                            <div className="flex justify-between items-center h-16">
-                                <div className="flex items-center">
-                                    <h1 className="text-2xl font-bold text-grit-600">
-                                        🔥 GritTracker
-                                    </h1>
-                                </div>
-                                <div className="flex space-x-1">
-                                    {['ダッシュボード', '記録する', '振り返り', 'ご褥美'].map(tab => (
-                                        <button
-                                            key={tab}
-                                            onClick={() => setActiveTab(tab)}
-                                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                                activeTab === tab 
-                                                    ? 'bg-grit-500 text-white' 
-                                                    : 'text-grit-600 hover:bg-grit-50'
-                                            }`}
-                                        >
-                                            {tab}
-                                        </button>
-                                    ))}
+                <div className="min-h-screen bg-grit-gradient p-8">
+                    <div className="max-w-4xl mx-auto">
+                        <h1 className="text-4xl font-bold text-grit-600 mb-8 text-center">
+                            🔥 GritTracker v1.2.2
+                        </h1>
+                        <p className="text-center text-grit-600 mb-8">
+                            粘り力を可視化する - 緑・白・黒テーマ版
+                        </p>
+                        
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                            <h2 className="text-2xl font-bold text-grit-600 mb-4">クイック記録</h2>
+                            
+                            <div className="mb-6">
+                                <label className="block text-grit-600 font-medium mb-2">
+                                    苦しさレベル: {difficulty}
+                                </label>
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="5"
+                                    value={difficulty}
+                                    onChange={(e) => setDifficulty(e.target.value)}
+                                    className="w-full h-3 rounded-lg cursor-pointer slider"
+                                    style={{
+                                        background: 'linear-gradient(to right, #bbf7d0, #4ade80, #16a34a)'
+                                    }}
+                                />
+                                <div className="flex justify-between text-sm text-neutral-400 mt-1">
+                                    <span>楽</span>
+                                    <span>やや楽</span>
+                                    <span>普通</span>
+                                    <span>きつい</span>
+                                    <span>超きつい</span>
                                 </div>
                             </div>
+                            
+                            <div className="mb-6">
+                                <label className="block text-grit-600 font-medium mb-2">
+                                    コメント
+                                </label>
+                                <textarea
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    placeholder="今日頑張ったことを記録しよう..."
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent placeholder-neutral-400"
+                                    rows="3"
+                                />
+                            </div>
+                            
+                            <button 
+                                onClick={saveRecord}
+                                className="w-full bg-grit-500 hover:bg-grit-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                            >
+                                記録を保存
+                            </button>
                         </div>
-                    </nav>
-
-                    <div className="max-w-6xl mx-auto p-6">
-                        {/* ダッシュボード */}
-                        {activeTab === 'ダッシュボード' && (
-                            <div>
-                                <h2 className="text-3xl font-bold text-grit-600 mb-6">ダッシュボード</h2>
-                                
-                                {/* 統計カード */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-                                    <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-                                        <div className="text-3xl font-bold text-grit-600">{stats.total}</div>
-                                        <div className="text-gray-600 text-sm">総記録数</div>
-                                    </div>
-                                    <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-                                        <div className="text-3xl font-bold text-grit-600">{stats.avgDifficulty}</div>
-                                        <div className="text-gray-600 text-sm">平均苦しさ</div>
-                                    </div>
-                                    <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-                                        <div className="text-3xl font-bold text-grit-600">{stats.streak}</div>
-                                        <div className="text-gray-600 text-sm">連続日数</div>
-                                    </div>
-                                    <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-                                        <div className="text-3xl font-bold text-grit-600">{stats.today}</div>
-                                        <div className="text-gray-600 text-sm">今日の記録</div>
-                                    </div>
-                                    <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-                                        <div className="text-3xl font-bold text-orange-600">{stats.weeklyScore}</div>
-                                        <div className="text-gray-600 text-sm">今週の合計<br/>耐久スコア</div>
-                                    </div>
-                                    <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-                                        <div className="text-3xl font-bold text-purple-600">{stats.totalScore}</div>
-                                        <div className="text-gray-600 text-sm">累計<br/>耐久スコア</div>
-                                    </div>
-                                </div>
-
-                                {/* グラフセクション */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                                    <div className="bg-white rounded-lg shadow-lg p-6">
-                                        <h3 className="text-xl font-bold text-grit-600 mb-4">耐久スコアの推移（過去30日）</h3>
-                                        <div className="h-64">
-                                            <canvas id="scoreChart"></canvas>
-                                        </div>
-                                    </div>
-                                    <div className="bg-white rounded-lg shadow-lg p-6">
-                                        <h3 className="text-xl font-bold text-grit-600 mb-4">習慣記録（過去30日）</h3>
-                                        <div className="h-64">
-                                            <canvas id="habitChart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* 最近の記録 */}
-                                <div className="bg-white rounded-lg shadow-lg p-6">
-                                    <h3 className="text-xl font-bold text-grit-600 mb-4">最近の記録</h3>
-                                    {recentRecords.length === 0 ? (
-                                        <div className="text-center text-gray-500 py-8">
-                                            <div className="text-4xl mb-2">📝</div>
-                                            <p>まだ記録がありません</p>
-                                            <p className="text-sm">「記録する」から最初の記録を作成しましょう！</p>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            {recentRecords.map(record => (
-                                                <div key={record.id} className="border-l-4 border-grit-500 pl-4 py-2">
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <span className="text-sm text-gray-500">{record.date} {record.time}</span>
-                                                                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                                                    record.difficulty <= 2 ? 'bg-green-100 text-green-800' :
-                                                                    record.difficulty === 3 ? 'bg-yellow-100 text-yellow-800' :
-                                                                    'bg-red-100 text-red-800'
-                                                                }`}>
-                                                                    {difficultyLabels[record.difficulty - 1]}
-                                                                </span>
-                                                            </div>
-                                                            <p className="text-gray-700 font-medium">{record.comment}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 記録する */}
-                        {activeTab === '記録する' && (
-                            <div>
-                                <h2 className="text-3xl font-bold text-grit-600 mb-6">記録する</h2>
-                                
-                                <div className="bg-white rounded-lg shadow-lg p-6">
-                                    <div className="mb-6">
-                                        <label className="block text-grit-600 font-medium mb-2">
-                                            取り組んだこと（任意）
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={task}
-                                            onChange={(e) => setTask(e.target.value)}
-                                            placeholder="例：英語の勉強、1時間ランニング..."
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    
-                                    <div className="mb-6">
-                                        <label className="block text-grit-600 font-medium mb-2">
-                                            苦しさレベル: {difficulty} ({difficultyLabels[difficulty - 1]})
-                                        </label>
-                                        <input
-                                            type="range"
-                                            min="1"
-                                            max="5"
-                                            value={difficulty}
-                                            onChange={(e) => setDifficulty(e.target.value)}
-                                            className="w-full h-3 rounded-lg cursor-pointer slider"
-                                            style={{
-                                                background: 'linear-gradient(to right, #bbf7d0, #4ade80, #16a34a)'
-                                            }}
-                                        />
-                                        <div className="flex justify-between text-sm text-neutral-400 mt-1">
-                                            <span>楽</span>
-                                            <span>やや楽</span>
-                                            <span>普通</span>
-                                            <span>きつい</span>
-                                            <span>超きつい</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="mb-6">
-                                        <label className="block text-grit-600 font-medium mb-2">
-                                            コメント *
-                                        </label>
-                                        <textarea
-                                            value={comment}
-                                            onChange={(e) => setComment(e.target.value)}
-                                            placeholder="今日頑張ったことや感想を記録しよう..."
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent placeholder-neutral-400"
-                                            rows="4"
-                                        />
-                                    </div>
-                                    
-                                    <button 
-                                        onClick={saveRecord}
-                                        className="w-full bg-grit-500 hover:bg-grit-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
-                                    >
-                                        📝 記録を保存
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 振り返り */}
-                        {activeTab === '振り返り' && (
-                            <div>
-                                <h2 className="text-3xl font-bold text-grit-600 mb-6">振り返り</h2>
-                                
-                                <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                                    <h3 className="text-xl font-bold text-grit-600 mb-4">あなたの頑張りの記録</h3>
-                                    {records.length === 0 ? (
-                                        <div className="text-center text-gray-500 py-12">
-                                            <div className="text-6xl mb-4">📋</div>
-                                            <p>まだ記録がありません</p>
-                                            <p className="text-sm">「記録する」から最初の記録を作成しましょう！</p>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-4 max-h-96 overflow-y-auto">
-                                            {records.map(record => (
-                                                <div key={record.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                                                    <div className="flex justify-between items-start">
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center gap-2 mb-2">
-                                                                <span className="text-sm text-gray-500">{record.date} {record.time}</span>
-                                                                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                                                    record.difficulty <= 2 ? 'bg-green-100 text-green-800' :
-                                                                    record.difficulty === 3 ? 'bg-yellow-100 text-yellow-800' :
-                                                                    'bg-red-100 text-red-800'
-                                                                }`}>
-                                                                    レベル{record.difficulty} ({difficultyLabels[record.difficulty - 1]})
-                                                                </span>
-                                                            </div>
-                                                            {record.task && record.task !== '未入力' && (
-                                                                <h4 className="font-bold text-grit-600 mb-1">{record.task}</h4>
-                                                            )}
-                                                            <p className="text-gray-600">{record.comment}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* ご褥美 */}
-                        {activeTab === 'ご褥美' && (
-                            <div>
-                                <h2 className="text-3xl font-bold text-grit-600 mb-6">ご褥美</h2>
-                                
-                                <div className="bg-white rounded-lg shadow-lg p-6 text-center">
-                                    <div className="text-6xl mb-4">🎆</div>
-                                    <h3 className="text-2xl font-bold text-grit-600 mb-4">お疲れさまでした！</h3>
-                                    <p className="text-gray-600 mb-6">
-                                        あなたはこれまでに{stats.total}回の記録をして、{stats.streak}日間連続で頑張っています！<br/>
-                                        累計耐久スコアは{stats.totalScore}ポイントです。
-                                    </p>
-                                    
-                                    {stats.total >= 10 && (
-                                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                                            <div className="text-2xl mb-2">🏆</div>
-                                            <p className="text-yellow-800 font-medium">「継続は力なり」達成！10回以上の記録達成！</p>
-                                        </div>
-                                    )}
-                                    
-                                    {stats.streak >= 7 && (
-                                        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                                            <div className="text-2xl mb-2">🔥</div>
-                                            <p className="text-green-800 font-medium">「7日連続ストリーク」達成！素晴らしい継続力です！</p>
-                                        </div>
-                                    )}
-                                    
-                                    {stats.total < 5 && (
-                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                            <div className="text-2xl mb-2">🌱</div>
-                                            <p className="text-blue-800">スタートダッシュを切ったあなた！この調子で続けていきましょう！</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
+                        
+                        <div className="text-center text-neutral-400 text-sm">
+                            スライダーつまみ: 白いフチ付きグレーグラデーション ✅<br/>
+                            配色: 緑・白・黒ベース ✅<br/>
+                            プレースホルダー: グレー系 ✅
+                        </div>
                     </div>
                 </div>
             );
