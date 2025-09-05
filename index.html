@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GritTracker v1.2.2 - 粘り力を可視化する</title>
+    <title>GritTracker - 粘り力を可視化する</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* カスタム配色設定 */
+        /* 元のオレンジ・ブルー配色に復元 */
         :root {
-            --color-grit-50: #f0fdf4;
-            --color-grit-500: #22c55e;
-            --color-grit-600: #16a34a;
-            --color-neutral-50: #fafafa;
-            --color-neutral-400: #a3a3a3;
-            --color-neutral-700: #404040;
+            --color-orange: #f5751e;
+            --color-orange-light: #fbb977;
+            --color-blue: #0ea5e9;
+            --color-blue-dark: #0284c7;
         }
         
-        /* スライダーのつまみを強制的にグレー系に変更 */
+        /* スライダーのカスタムスタイル */
         input[type="range"].slider {
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -34,20 +32,18 @@
             height: 24px !important;
             width: 24px !important;
             border-radius: 50% !important;
-            background: linear-gradient(135deg, #e5e5e5, #737373) !important;
+            background: linear-gradient(45deg, #f5751e, #0ea5e9) !important;
             cursor: pointer !important;
-            border: 3px solid #ffffff !important;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
-            -webkit-transition: all 0.2s ease !important;
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
             transition: all 0.2s ease !important;
             position: relative !important;
             z-index: 2 !important;
         }
         
         .slider::-webkit-slider-thumb:hover {
-            background: linear-gradient(135deg, #f5f5f5, #525252) !important;
-            transform: scale(1.15) !important;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4) !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
         }
         
         /* Firefox */
@@ -55,35 +51,56 @@
             height: 24px !important;
             width: 24px !important;
             border-radius: 50% !important;
-            background: linear-gradient(135deg, #e5e5e5, #737373) !important;
+            background: linear-gradient(45deg, #f5751e, #0ea5e9) !important;
             cursor: pointer !important;
-            border: 3px solid #ffffff !important;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
         }
         
         /* スライダートラック */
         .slider::-webkit-slider-track {
             height: 12px !important;
             border-radius: 6px !important;
-            background: linear-gradient(to right, #bbf7d0, #4ade80, #16a34a) !important;
+            background: linear-gradient(to right, #f5751e, #fbb977, #0ea5e9) !important;
         }
         
         .slider::-moz-range-track {
             height: 12px !important;
             border-radius: 6px !important;
             border: none !important;
-            background: linear-gradient(to right, #bbf7d0, #4ade80, #16a34a) !important;
+            background: linear-gradient(to right, #f5751e, #fbb977, #0ea5e9) !important;
         }
         
-        /* グリーン系の配色 */
+        /* グラデーション背景 */
         .bg-grit-gradient {
-            background: linear-gradient(to bottom right, var(--color-grit-50), var(--color-neutral-50), #e8f5e8);
+            background: linear-gradient(135deg, #f5751e 0%, #fbb977 50%, #0ea5e9 100%);
         }
         
-        .text-grit-600 { color: var(--color-grit-600); }
-        .bg-grit-500 { background-color: var(--color-grit-500); }
-        .bg-grit-600 { background-color: var(--color-grit-600); }
-        .placeholder-neutral { color: var(--color-neutral-400); }
+        /* ボタンスタイル */
+        .btn-grit {
+            background: linear-gradient(135deg, #f5751e, #0ea5e9);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-grit:hover {
+            background: linear-gradient(135deg, #e65814, #0284c7);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 117, 30, 0.3);
+        }
+        
+        /* テキストグラデーション */
+        .text-grit-gradient {
+            background: linear-gradient(135deg, #f5751e, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
     </style>
 </head>
 <body>
@@ -95,7 +112,7 @@
             const [comment, setComment] = React.useState('');
             const [records, setRecords] = React.useState([]);
 
-            // LocalStorageからデータを読み込み（バックグラウンド）
+            // LocalStorageからデータを読み込み
             React.useEffect(() => {
                 const savedRecords = localStorage.getItem('gritTrackerRecords');
                 if (savedRecords) {
@@ -103,7 +120,7 @@
                 }
             }, []);
 
-            // データ保存機能（バックグラウンド）
+            // データ保存機能
             const saveRecord = () => {
                 if (!comment.trim()) {
                     alert('コメントを入力してください！');
@@ -133,18 +150,18 @@
             return (
                 <div className="min-h-screen bg-grit-gradient p-8">
                     <div className="max-w-4xl mx-auto">
-                        <h1 className="text-4xl font-bold text-grit-600 mb-8 text-center">
-                            🔥 GritTracker v1.2.2
+                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center drop-shadow-lg">
+                            🔥 GritTracker
                         </h1>
-                        <p className="text-center text-grit-600 mb-8">
-                            粘り力を可視化する - 緑・白・黒テーマ版
+                        <p className="text-center text-white/90 mb-8 text-lg drop-shadow">
+                            粘り力を可視化する
                         </p>
                         
-                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                            <h2 className="text-2xl font-bold text-grit-600 mb-4">クイック記録</h2>
+                        <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-8 mb-6">
+                            <h2 className="text-2xl font-bold text-grit-gradient mb-6">クイック記録</h2>
                             
                             <div className="mb-6">
-                                <label className="block text-grit-600 font-medium mb-2">
+                                <label className="block text-gray-700 font-semibold mb-3">
                                     苦しさレベル: {difficulty}
                                 </label>
                                 <input
@@ -154,11 +171,8 @@
                                     value={difficulty}
                                     onChange={(e) => setDifficulty(e.target.value)}
                                     className="w-full h-3 rounded-lg cursor-pointer slider"
-                                    style={{
-                                        background: 'linear-gradient(to right, #bbf7d0, #4ade80, #16a34a)'
-                                    }}
                                 />
-                                <div className="flex justify-between text-sm text-neutral-400 mt-1">
+                                <div className="flex justify-between text-sm text-gray-500 mt-2">
                                     <span>楽</span>
                                     <span>やや楽</span>
                                     <span>普通</span>
@@ -168,30 +182,29 @@
                             </div>
                             
                             <div className="mb-6">
-                                <label className="block text-grit-600 font-medium mb-2">
+                                <label className="block text-gray-700 font-semibold mb-3">
                                     コメント
                                 </label>
                                 <textarea
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                     placeholder="今日頑張ったことを記録しよう..."
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent placeholder-neutral-400"
-                                    rows="3"
+                                    className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-orange-400 focus:ring-0 transition-colors"
+                                    rows="4"
                                 />
                             </div>
                             
                             <button 
                                 onClick={saveRecord}
-                                className="w-full bg-grit-500 hover:bg-grit-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                                className="w-full btn-grit text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg"
                             >
-                                記録を保存
+                                📝 記録を保存
                             </button>
                         </div>
                         
-                        <div className="text-center text-neutral-400 text-sm">
-                            スライダーつまみ: 白いフチ付きグレーグラデーション ✅<br/>
-                            配色: 緑・白・黒ベース ✅<br/>
-                            プレースホルダー: グレー系 ✅
+                        <div className="text-center text-white/80 text-sm">
+                            🎨 オレンジ・ブルーグラデーション配色<br/>
+                            💾 データはブラウザに保存されます ({records.length}件記録済)
                         </div>
                     </div>
                 </div>
