@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* カスタム配色設定 */
         :root {
@@ -140,9 +141,18 @@
                 setActiveTab('ダッシュボード');
             };
 
+            // 耐久スコア計算（苦しさレベル×重み付け）
+            const calculateEnduranceScore = (difficulty) => {
+                const scoreMap = { 1: 1, 2: 3, 3: 5, 4: 8, 5: 12 };
+                return scoreMap[difficulty] || 0;
+            };
+
             // 統計情報計算
             const getStats = () => {
-                if (records.length === 0) return { total: 0, avgDifficulty: 0, streak: 0, today: 0 };
+                if (records.length === 0) return { 
+                    total: 0, avgDifficulty: 0, streak: 0, today: 0, 
+                    weeklyScore: 0, totalScore: 0 
+                };
                 
                 const total = records.length;
                 const avgDifficulty = (records.reduce((sum, r) => sum + r.difficulty, 0) / total).toFixed(1);
@@ -163,12 +173,143 @@
                     }
                 }
                 
-                return { total, avgDifficulty, streak, today: todayRecords };
+                // 耐久スコア計算
+                const totalScore = records.reduce((sum, r) => sum + calculateEnduranceScore(r.difficulty), 0);
+                
+                // 今週のスコア計算
+                const now = new Date();
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay()); // 日曜日から始まる週
+                startOfWeek.setHours(0, 0, 0, 0);
+                
+                const weeklyRecords = records.filter(r => {
+                    const recordDate = new Date(r.date);
+                    return recordDate >= startOfWeek;
+                });
+                const weeklyScore = weeklyRecords.reduce((sum, r) => sum + calculateEnduranceScore(r.difficulty), 0);
+                
+                return { total, avgDifficulty, streak, today: todayRecords, weeklyScore, totalScore };
+            };
+
+            // グラフ用データ生成
+            const getChartData = () => {
+                if (records.length === 0) return { dates: [], scores: [], habits: [] };
+                
+                // スコアの推移データ
+                const dateScoreMap = {};
+                records.forEach(record => {
+                    const date = record.date;
+                    if (!dateScoreMap[date]) {
+                        dateScoreMap[date] = 0;
+                    }
+                    dateScoreMap[date] += calculateEnduranceScore(record.difficulty);
+                });
+                
+                // 過去30日間のデータを生成
+                const dates = [];
+                const scores = [];
+                const habits = [];
+                
+                for (let i = 29; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    const dayScore = dateScoreMap[dateStr] || 0;
+                    
+                    dates.push(date.getMonth() + 1 + '/' + date.getDate());
+                    scores.push(dayScore);
+                    habits.push(dayScore > 0 ? 1 : 0);
+                }
+                
+                return { dates, scores, habits };
             };
 
             const stats = getStats();
             const recentRecords = records.slice(0, 5);
+            const chartData = getChartData();
             const difficultyLabels = ['楽', 'やや楽', '普通', 'きつい', '超きつい'];
+
+            // グラフ描画
+            React.useEffect(() => {
+                if (activeTab === 'ダッシュボード' && records.length > 0) {
+                    // 耐久スコアの推移グラフ
+                    const scoreCanvas = document.getElementById('scoreChart');
+                    if (scoreCanvas) {
+                        const existingChart = Chart.getChart(scoreCanvas);
+                        if (existingChart) existingChart.destroy();
+                        
+                        new Chart(scoreCanvas, {
+                            type: 'line',
+                            data: {
+                                labels: chartData.dates,
+                                datasets: [{
+                                    label: '耐久スコア',
+                                    data: chartData.scores,
+                                    borderColor: '#f59e0b',
+                                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    
+                    // 習慣記録グラフ
+                    const habitCanvas = document.getElementById('habitChart');
+                    if (habitCanvas) {
+                        const existingChart = Chart.getChart(habitCanvas);
+                        if (existingChart) existingChart.destroy();
+                        
+                        new Chart(habitCanvas, {
+                            type: 'bar',
+                            data: {
+                                labels: chartData.dates,
+                                datasets: [{
+                                    label: '記録あり',
+                                    data: chartData.habits,
+                                    backgroundColor: chartData.habits.map(h => h > 0 ? '#22c55e' : '#e5e7eb'),
+                                    borderRadius: 4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 1,
+                                        ticks: {
+                                            stepSize: 1,
+                                            callback: function(value) {
+                                                return value === 1 ? 'あり' : 'なし';
+                                            }
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            }, [activeTab, records]);
 
             return (
                 <div className="min-h-screen bg-grit-gradient">
@@ -207,22 +348,46 @@
                                 <h2 className="text-3xl font-bold text-grit-600 mb-6">ダッシュボード</h2>
                                 
                                 {/* 統計カード */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                                     <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                                         <div className="text-3xl font-bold text-grit-600">{stats.total}</div>
-                                        <div className="text-gray-600">総記録数</div>
+                                        <div className="text-gray-600 text-sm">総記録数</div>
                                     </div>
                                     <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                                         <div className="text-3xl font-bold text-grit-600">{stats.avgDifficulty}</div>
-                                        <div className="text-gray-600">平均苦しさ</div>
+                                        <div className="text-gray-600 text-sm">平均苦しさ</div>
                                     </div>
                                     <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                                         <div className="text-3xl font-bold text-grit-600">{stats.streak}</div>
-                                        <div className="text-gray-600">連続日数</div>
+                                        <div className="text-gray-600 text-sm">連続日数</div>
                                     </div>
                                     <div className="bg-white rounded-lg shadow-lg p-6 text-center">
                                         <div className="text-3xl font-bold text-grit-600">{stats.today}</div>
-                                        <div className="text-gray-600">今日の記録</div>
+                                        <div className="text-gray-600 text-sm">今日の記録</div>
+                                    </div>
+                                    <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+                                        <div className="text-3xl font-bold text-orange-600">{stats.weeklyScore}</div>
+                                        <div className="text-gray-600 text-sm">今週の合計<br/>耐久スコア</div>
+                                    </div>
+                                    <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+                                        <div className="text-3xl font-bold text-purple-600">{stats.totalScore}</div>
+                                        <div className="text-gray-600 text-sm">累計<br/>耐久スコア</div>
+                                    </div>
+                                </div>
+
+                                {/* グラフセクション */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                                    <div className="bg-white rounded-lg shadow-lg p-6">
+                                        <h3 className="text-xl font-bold text-grit-600 mb-4">耐久スコアの推移（過去30日）</h3>
+                                        <div className="h-64">
+                                            <canvas id="scoreChart"></canvas>
+                                        </div>
+                                    </div>
+                                    <div className="bg-white rounded-lg shadow-lg p-6">
+                                        <h3 className="text-xl font-bold text-grit-600 mb-4">習慣記録（過去30日）</h3>
+                                        <div className="h-64">
+                                            <canvas id="habitChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -380,7 +545,8 @@
                                     <div className="text-6xl mb-4">🎆</div>
                                     <h3 className="text-2xl font-bold text-grit-600 mb-4">お疲れさまでした！</h3>
                                     <p className="text-gray-600 mb-6">
-                                        あなたはこれまでに{stats.total}回の記録をして、{stats.streak}日間連続で頑張っています！
+                                        あなたはこれまでに{stats.total}回の記録をして、{stats.streak}日間連続で頑張っています！<br/>
+                                        累計耐久スコアは{stats.totalScore}ポイントです。
                                     </p>
                                     
                                     {stats.total >= 10 && (
