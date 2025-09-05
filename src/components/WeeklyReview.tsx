@@ -143,24 +143,89 @@ const WeeklyReview: React.FC = () => {
                           : 'border-grit-200 hover:border-grit-300 bg-white/80'
                       }`}
                     >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm ${
-                              selectedBestLogs.includes(log.id)
-                                ? 'border-grit-500 bg-grit-500 text-white'
-                                : 'border-grit-300 text-grit-500'
-                            }`}>
-                              {selectedBestLogs.includes(log.id) ? (
-                                selectedBestLogs.indexOf(log.id) + 1
-                              ) : (
-                                '+'
+                      <>
+                        {/* デスクトップレイアウト */}
+                        <div className="hidden sm:flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm ${
+                                selectedBestLogs.includes(log.id)
+                                  ? 'border-grit-500 bg-grit-500 text-white'
+                                  : 'border-grit-300 text-grit-500'
+                              }`}>
+                                {selectedBestLogs.includes(log.id) ? (
+                                  selectedBestLogs.indexOf(log.id) + 1
+                                ) : (
+                                  '+'
+                                )}
+                              </div>
+                              <h3 className="font-bold text-grit-800 text-lg">{log.taskName}</h3>
+                            </div>
+                            
+                            <div className="flex items-center space-x-6 text-sm text-grit-600 mb-3 ml-11">
+                              <span className="flex items-center space-x-1">
+                                <FaCalendarWeek className="text-grit-500" />
+                                <span className="font-medium">{log.date}</span>
+                              </span>
+                              <span className="flex items-center space-x-1">
+                                <FaClock className="text-endurance-500" />
+                                <span className="font-medium">{formatTimeFromMinutes(log.enduredTime)}</span>
+                              </span>
+                              <span className="bg-grit-100 text-grit-700 px-3 py-1 rounded-full font-semibold">
+                                苦しさ: {log.difficultyScore}/10
+                              </span>
+                              {log.wasSuccessful !== undefined && (
+                                <span className={`px-3 py-1 rounded-full font-semibold text-sm ${
+                                  log.wasSuccessful ? 'bg-green-100 text-green-700' : 'bg-endurance-100 text-endurance-700'
+                                }`}>
+                                  {log.wasSuccessful ? '✅ 完了' : '💪 途中'}
+                                </span>
                               )}
                             </div>
-                            <h3 className="font-bold text-grit-800 text-lg">{log.taskName}</h3>
+                            
+                            {log.details && (
+                              <p className="text-sm text-grit-700 italic bg-endurance-50 p-3 rounded-lg border-l-4 border-endurance-500 ml-11">
+                                "{log.details}"
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right ml-6">
+                            <div className="bg-gradient-to-br from-grit-500 to-grit-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg">
+                              <div className="text-center">
+                                <div className="text-lg font-bold">{log.enduranceScore}</div>
+                                <div className="text-xs opacity-90">pt</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* モバイルレイアウト */}
+                        <div className="sm:hidden space-y-4">
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-center gap-3 flex-1">
+                              <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm ${
+                                selectedBestLogs.includes(log.id)
+                                  ? 'border-grit-500 bg-grit-500 text-white'
+                                  : 'border-grit-300 text-grit-500'
+                              }`}>
+                                {selectedBestLogs.includes(log.id) ? (
+                                  selectedBestLogs.indexOf(log.id) + 1
+                                ) : (
+                                  '+'
+                                )}
+                              </div>
+                              <h3 className="font-bold text-grit-800 text-lg">{log.taskName}</h3>
+                            </div>
+                            {/* 耐久スコア */}
+                            <div className="bg-gradient-to-br from-grit-500 to-grit-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ml-3">
+                              <div className="text-center">
+                                <div className="text-sm font-bold">{log.enduranceScore}</div>
+                                <div className="text-xs opacity-90">pt</div>
+                              </div>
+                            </div>
                           </div>
                           
-                          <div className="flex items-center space-x-6 text-sm text-grit-600 mb-3 ml-11">
+                          <div className="grid grid-cols-2 gap-3 text-sm text-grit-600">
                             <span className="flex items-center space-x-1">
                               <FaCalendarWeek className="text-grit-500" />
                               <span className="font-medium">{log.date}</span>
@@ -169,7 +234,10 @@ const WeeklyReview: React.FC = () => {
                               <FaClock className="text-endurance-500" />
                               <span className="font-medium">{formatTimeFromMinutes(log.enduredTime)}</span>
                             </span>
-                            <span className="bg-grit-100 text-grit-700 px-3 py-1 rounded-full font-semibold">
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-2">
+                            <span className="bg-grit-100 text-grit-700 px-3 py-1 rounded-full font-semibold text-sm">
                               苦しさ: {log.difficultyScore}/10
                             </span>
                             {log.wasSuccessful !== undefined && (
@@ -182,20 +250,12 @@ const WeeklyReview: React.FC = () => {
                           </div>
                           
                           {log.details && (
-                            <p className="text-sm text-grit-700 italic bg-endurance-50 p-3 rounded-lg border-l-4 border-endurance-500 ml-11">
+                            <p className="text-sm text-grit-700 italic bg-endurance-50 p-3 rounded-lg border-l-4 border-endurance-500">
                               "{log.details}"
                             </p>
                           )}
                         </div>
-                        <div className="text-right ml-6">
-                          <div className="bg-gradient-to-br from-grit-500 to-grit-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg">
-                            <div className="text-center">
-                              <div className="text-lg font-bold">{log.enduranceScore}</div>
-                              <div className="text-xs opacity-90">pt</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      </>
                     </div>
                   ))}
                 </div>
