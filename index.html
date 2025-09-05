@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GritTracker v1.2.2 - 粘り力を可視化する</title>
+    <title>GritTracker v2.0.0 - 完全版粘り力トラッカー</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* カスタム配色設定 */
         :root {
@@ -93,66 +94,382 @@
         function App() {
             const [difficulty, setDifficulty] = React.useState(3);
             const [comment, setComment] = React.useState('');
+            const [task, setTask] = React.useState('');
+            const [records, setRecords] = React.useState([]);
+            const [activeTab, setActiveTab] = React.useState('record');
+            const [chartRef, setChartRef] = React.useState(null);
+
+            // LocalStorageからデータを読み込み
+            React.useEffect(() => {
+                const savedRecords = localStorage.getItem('gritTrackerRecords');
+                if (savedRecords) {
+                    setRecords(JSON.parse(savedRecords));
+                }
+            }, []);
+
+            // データ保存機能
+            const saveRecord = () => {
+                if (!task.trim()) {
+                    alert('取り組んだことを入力してください！');
+                    return;
+                }
+                
+                const newRecord = {
+                    id: Date.now(),
+                    date: new Date().toISOString().split('T')[0],
+                    time: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
+                    difficulty: parseInt(difficulty),
+                    task: task.trim(),
+                    comment: comment.trim(),
+                    timestamp: new Date().toISOString()
+                };
+                
+                const updatedRecords = [newRecord, ...records];
+                setRecords(updatedRecords);
+                localStorage.setItem('gritTrackerRecords', JSON.stringify(updatedRecords));
+                
+                // フォームリセット
+                setTask('');
+                setComment('');
+                setDifficulty(3);
+                
+                alert('記録を保存しました！🎉');
+            };
+
+            // 記録削除機能
+            const deleteRecord = (id) => {
+                if (confirm('この記録を削除しますか？')) {
+                    const updatedRecords = records.filter(record => record.id !== id);
+                    setRecords(updatedRecords);
+                    localStorage.setItem('gritTrackerRecords', JSON.stringify(updatedRecords));
+                }
+            };
+
+            // データエクスポート機能
+            const exportData = () => {
+                if (records.length === 0) {
+                    alert('エクスポートするデータがありません');
+                    return;
+                }
+                
+                const csvContent = [
+                    ['日付', '時刻', '苦しさレベル', '取り組んだこと', 'コメント'],
+                    ...records.map(record => [
+                        record.date,
+                        record.time,
+                        record.difficulty,
+                        record.task,
+                        record.comment
+                    ])
+                ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `grit-tracker-data-${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            // 統計データ計算
+            const getStats = () => {
+                if (records.length === 0) return null;
+                
+                const totalRecords = records.length;
+                const avgDifficulty = (records.reduce((sum, r) => sum + r.difficulty, 0) / totalRecords).toFixed(1);
+                const difficultyCount = [1,2,3,4,5].map(level => records.filter(r => r.difficulty === level).length);
+                
+                const last7Days = records.filter(record => {
+                    const recordDate = new Date(record.date);
+                    const today = new Date();
+                    const diffTime = today.getTime() - recordDate.getTime();
+                    return diffTime <= 7 * 24 * 60 * 60 * 1000;
+                });
+                
+                return {
+                    totalRecords,
+                    avgDifficulty,
+                    difficultyCount,
+                    last7Days: last7Days.length,
+                    streak: calculateStreak()
+                };
+            };
+
+            // 連続記録日数計算
+            const calculateStreak = () => {
+                if (records.length === 0) return 0;
+                
+                const dates = [...new Set(records.map(r => r.date))].sort().reverse();
+                let streak = 0;
+                const today = new Date().toISOString().split('T')[0];
+                
+                for (let i = 0; i < dates.length; i++) {
+                    const currentDate = new Date(dates[i]);
+                    const expectedDate = new Date();
+                    expectedDate.setDate(expectedDate.getDate() - i);
+                    
+                    if (currentDate.toISOString().split('T')[0] === expectedDate.toISOString().split('T')[0]) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                return streak;
+            };
+
+            // グラフ描画
+            React.useEffect(() => {
+                if (activeTab === 'stats' && records.length > 0) {
+                    const canvas = document.getElementById('gritChart');
+                    if (canvas && chartRef) {
+                        chartRef.destroy();
+                    }
+                    
+                    if (canvas) {
+                        const ctx = canvas.getContext('2d');
+                        const stats = getStats();
+                        
+                        const newChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['楽 (1)', 'やや楽 (2)', '普通 (3)', 'きつい (4)', '超きつい (5)'],
+                                datasets: [{
+                                    label: '記録数',
+                                    data: stats.difficultyCount,
+                                    backgroundColor: [
+                                        '#bbf7d0',
+                                        '#86efac', 
+                                        '#4ade80',
+                                        '#22c55e',
+                                        '#16a34a'
+                                    ],
+                                    borderColor: '#16a34a',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            stepSize: 1
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        });
+                        
+                        setChartRef(newChart);
+                    }
+                }
+            }, [activeTab, records]);
+
+            const stats = getStats();
+            const difficultyLabels = ['楽', 'やや楽', '普通', 'きつい', '超きつい'];
 
             return (
-                <div className="min-h-screen bg-grit-gradient p-8">
-                    <div className="max-w-4xl mx-auto">
-                        <h1 className="text-4xl font-bold text-grit-600 mb-8 text-center">
-                            🔥 GritTracker v1.2.2
+                <div className="min-h-screen bg-grit-gradient p-4">
+                    <div className="max-w-6xl mx-auto">
+                        <h1 className="text-4xl font-bold text-grit-600 mb-4 text-center">
+                            🔥 GritTracker v2.0.0
                         </h1>
                         <p className="text-center text-grit-600 mb-8">
-                            粘り力を可視化する - 緑・白・黒テーマ版
+                            完全版粘り力トラッカー - あなたの頑張りを記録・分析・可視化
                         </p>
                         
-                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                            <h2 className="text-2xl font-bold text-grit-600 mb-4">クイック記録</h2>
-                            
-                            <div className="mb-6">
-                                <label className="block text-grit-600 font-medium mb-2">
-                                    苦しさレベル: {difficulty}
-                                </label>
-                                <input
-                                    type="range"
-                                    min="1"
-                                    max="5"
-                                    value={difficulty}
-                                    onChange={(e) => setDifficulty(e.target.value)}
-                                    className="w-full h-3 rounded-lg cursor-pointer slider"
-                                    style={{
-                                        background: 'linear-gradient(to right, #bbf7d0, #4ade80, #16a34a)'
-                                    }}
-                                />
-                                <div className="flex justify-between text-sm text-neutral-400 mt-1">
-                                    <span>楽</span>
-                                    <span>やや楽</span>
-                                    <span>普通</span>
-                                    <span>きつい</span>
-                                    <span>超きつい</span>
+                        {/* ナビゲーション */}
+                        <div className="flex flex-wrap justify-center mb-6 bg-white rounded-lg shadow-lg p-2">
+                            {[
+                                { key: 'record', label: '📝 記録', icon: '📝' },
+                                { key: 'history', label: '📋 履歴', icon: '📋' },
+                                { key: 'stats', label: '📊 統計', icon: '📊' }
+                            ].map(tab => (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setActiveTab(tab.key)}
+                                    className={`px-4 py-2 mx-1 rounded-lg font-medium transition-colors ${
+                                        activeTab === tab.key 
+                                            ? 'bg-grit-500 text-white' 
+                                            : 'text-grit-600 hover:bg-grit-50'
+                                    }`}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* 記録タブ */}
+                        {activeTab === 'record' && (
+                            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                                <h2 className="text-2xl font-bold text-grit-600 mb-6">新しい記録を追加</h2>
+                                
+                                <div className="mb-6">
+                                    <label className="block text-grit-600 font-medium mb-2">
+                                        取り組んだこと *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={task}
+                                        onChange={(e) => setTask(e.target.value)}
+                                        placeholder="例：英語の勉強、ランニング、プログラミング..."
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent"
+                                    />
+                                </div>
+                                
+                                <div className="mb-6">
+                                    <label className="block text-grit-600 font-medium mb-2">
+                                        苦しさレベル: {difficulty} ({difficultyLabels[difficulty - 1]})
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="5"
+                                        value={difficulty}
+                                        onChange={(e) => setDifficulty(e.target.value)}
+                                        className="w-full h-3 rounded-lg cursor-pointer slider"
+                                    />
+                                    <div className="flex justify-between text-sm text-neutral-400 mt-1">
+                                        <span>楽</span>
+                                        <span>やや楽</span>
+                                        <span>普通</span>
+                                        <span>きつい</span>
+                                        <span>超きつい</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="mb-6">
+                                    <label className="block text-grit-600 font-medium mb-2">
+                                        コメント（感想・詳細など）
+                                    </label>
+                                    <textarea
+                                        value={comment}
+                                        onChange={(e) => setComment(e.target.value)}
+                                        placeholder="今日の頑張りや感想を記録しよう..."
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent placeholder-neutral-400"
+                                        rows="3"
+                                    />
+                                </div>
+                                
+                                <button 
+                                    onClick={saveRecord}
+                                    className="w-full bg-grit-500 hover:bg-grit-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                                >
+                                    📝 記録を保存
+                                </button>
+                            </div>
+                        )}
+
+                        {/* 履歴タブ */}
+                        {activeTab === 'history' && (
+                            <div className="bg-white rounded-lg shadow-lg p-6">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold text-grit-600">記録履歴</h2>
+                                    {records.length > 0 && (
+                                        <button 
+                                            onClick={exportData}
+                                            className="bg-grit-500 hover:bg-grit-600 text-white px-4 py-2 rounded-lg transition-colors"
+                                        >
+                                            📊 CSV出力
+                                        </button>
+                                    )}
+                                </div>
+                                
+                                {records.length === 0 ? (
+                                    <div className="text-center text-gray-500 py-12">
+                                        <div className="text-6xl mb-4">📋</div>
+                                        <p>まだ記録がありません</p>
+                                        <p className="text-sm">「記録」タブから最初の記録を作成しましょう！</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                                        {records.map(record => (
+                                            <div key={record.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                                <div className="flex justify-between items-start">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <span className="text-sm text-gray-500">{record.date} {record.time}</span>
+                                                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                                                record.difficulty <= 2 ? 'bg-green-100 text-green-800' :
+                                                                record.difficulty === 3 ? 'bg-yellow-100 text-yellow-800' :
+                                                                'bg-red-100 text-red-800'
+                                                            }`}>
+                                                                レベル{record.difficulty} ({difficultyLabels[record.difficulty - 1]})
+                                                            </span>
+                                                        </div>
+                                                        <h3 className="font-bold text-grit-600 mb-1">{record.task}</h3>
+                                                        {record.comment && (
+                                                            <p className="text-gray-600 text-sm">{record.comment}</p>
+                                                        )}
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => deleteRecord(record.id)}
+                                                        className="text-red-500 hover:text-red-700 ml-4 p-1"
+                                                        title="削除"
+                                                    >
+                                                        🗑️
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* 統計タブ */}
+                        {activeTab === 'stats' && (
+                            <div>
+                                {stats ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+                                            <div className="text-3xl font-bold text-grit-600">{stats.totalRecords}</div>
+                                            <div className="text-gray-600">総記録数</div>
+                                        </div>
+                                        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+                                            <div className="text-3xl font-bold text-grit-600">{stats.avgDifficulty}</div>
+                                            <div className="text-gray-600">平均苦しさ</div>
+                                        </div>
+                                        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+                                            <div className="text-3xl font-bold text-grit-600">{stats.last7Days}</div>
+                                            <div className="text-gray-600">過去7日間</div>
+                                        </div>
+                                        <div className="bg-white rounded-lg shadow-lg p-6 text-center">
+                                            <div className="text-3xl font-bold text-grit-600">{stats.streak}</div>
+                                            <div className="text-gray-600">連続記録日数</div>
+                                        </div>
+                                    </div>
+                                ) : null}
+                                
+                                <div className="bg-white rounded-lg shadow-lg p-6">
+                                    <h2 className="text-2xl font-bold text-grit-600 mb-6">苦しさレベル別記録数</h2>
+                                    {stats ? (
+                                        <div style={{ position: 'relative', height: '400px' }}>
+                                            <canvas id="gritChart"></canvas>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center text-gray-500 py-12">
+                                            <div className="text-6xl mb-4">📊</div>
+                                            <p>まだ統計データがありません</p>
+                                            <p className="text-sm">記録を作成すると、ここに統計が表示されます</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            
-                            <div className="mb-6">
-                                <label className="block text-grit-600 font-medium mb-2">
-                                    コメント
-                                </label>
-                                <textarea
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    placeholder="今日頑張ったことを記録しよう..."
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent placeholder-neutral-400"
-                                    rows="3"
-                                />
-                            </div>
-                            
-                            <button className="w-full bg-grit-500 hover:bg-grit-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                                記録を保存
-                            </button>
-                        </div>
+                        )}
                         
-                        <div className="text-center text-neutral-400 text-sm">
-                            スライダーつまみ: 白いフチ付きグレーグラデーション ✅<br/>
-                            配色: 緑・白・黒ベース ✅<br/>
-                            プレースホルダー: グレー系 ✅
+                        <div className="text-center text-neutral-400 text-sm mt-8">
+                            🔥 あなたの粘り力を記録・分析・可視化 ✨<br/>
+                            GritTracker v2.0.0 - Complete Edition
                         </div>
                     </div>
                 </div>
