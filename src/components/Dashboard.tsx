@@ -445,24 +445,8 @@ const Dashboard: React.FC = () => {
                   {editingLog === log.id && editingData ? (
                     // 編集モード
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="mb-4">
                         <h4 className="font-bold text-grit-800 text-lg">記録を編集中...</h4>
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={handleSaveEdit}
-                            className="px-4 py-2 bg-grit-500 text-white rounded-lg hover:bg-grit-600 transition-colors flex items-center space-x-2"
-                          >
-                            <FaCheck className="text-sm" />
-                            <span>保存</span>
-                          </button>
-                          <button
-                            onClick={handleCancelEdit}
-                            className="px-4 py-2 bg-neutral-400 text-white rounded-lg hover:bg-neutral-500 transition-colors flex items-center space-x-2"
-                          >
-                            <FaTimes className="text-sm" />
-                            <span>キャンセル</span>
-                          </button>
-                        </div>
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -496,7 +480,7 @@ const Dashboard: React.FC = () => {
                             className="w-full p-3 border border-grit-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grit-500"
                           />
                         </div>
-                        <div>
+                        <div className="md:col-span-2">
                           <label className="block text-sm font-semibold text-grit-700 mb-2">詳細 (任意)</label>
                           <textarea
                             value={editingData.details}
@@ -505,6 +489,24 @@ const Dashboard: React.FC = () => {
                             className="w-full p-3 border border-grit-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grit-500 resize-none"
                           />
                         </div>
+                      </div>
+                      
+                      {/* アクションボタン - 詳細欄の下部に配置 */}
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 justify-center sm:justify-start mt-6">
+                        <button
+                          onClick={handleSaveEdit}
+                          className="flex items-center justify-center space-x-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg text-sm font-medium min-w-[80px]"
+                        >
+                          <FaCheck className="text-xs" />
+                          <span>保存</span>
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="flex items-center justify-center space-x-1.5 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all shadow-md hover:shadow-lg text-sm font-medium min-w-[80px]"
+                        >
+                          <FaTimes className="text-xs" />
+                          <span>キャンセル</span>
+                        </button>
                       </div>
                     </div>
                   ) : (
