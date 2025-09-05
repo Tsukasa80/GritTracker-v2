@@ -12,7 +12,8 @@ import {
   formatMonth,
   calculateEnduranceScore,
   calculateWeeklyStats,
-  calculateMonthlyStats
+  calculateMonthlyStats,
+  getLogsForWeek
 } from '../utils';
 
 interface GritStore extends AppState {
@@ -232,8 +233,8 @@ export const useGritStore = create<GritStore>()(
         const state = get();
         const today = new Date();
         const thisWeekStart = getWeekStartDate(today);
-        const weekStats = state.weeklyStats[thisWeekStart];
-        return weekStats?.totalEnduranceScore || 0;
+        const weekLogs = getLogsForWeek(state.gritLogs, thisWeekStart);
+        return weekLogs.reduce((total, log) => total + log.enduranceScore, 0);
       },
       
       getCumulativeTotalScore: () => {
