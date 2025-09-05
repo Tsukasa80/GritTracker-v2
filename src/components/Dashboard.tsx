@@ -92,10 +92,10 @@ const Dashboard: React.FC = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-grit-500 to-grit-600 rounded-full mb-4 shadow-lg">
             <span className="text-3xl">🏆</span>
           </div>
-          <h1 className="text-4xl font-bold mb-3 tracking-wide text-grit-700 text-center">
-            <span className="block">GritTracker</span>
-            <span className="block">ダッシュボード</span>
-          </h1>
+          <div className="text-4xl font-bold mb-3 tracking-wide text-grit-700 text-center">
+            <div className="leading-tight">GritTracker</div>
+            <div className="leading-tight">ダッシュボード</div>
+          </div>
           <p className="text-grit-600 text-lg font-medium">あなたの粘り力を可視化して、成長を実感しましょう</p>
           <div className="w-24 h-1 bg-gradient-to-r from-grit-500 to-grit-600 mx-auto mt-4 rounded-full"></div>
         </div>
@@ -509,13 +509,76 @@ const Dashboard: React.FC = () => {
                     </div>
                   ) : (
                     // 表示モード
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-3">
-                          <div className="w-2 h-2 bg-grit-500 rounded-full"></div>
-                          <h4 className="font-bold text-grit-800 text-lg">{log.taskName}</h4>
+                    <div>
+                      {/* デスクトップレイアウト */}
+                      <div className="hidden sm:flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <div className="w-2 h-2 bg-grit-500 rounded-full"></div>
+                            <h4 className="font-bold text-grit-800 text-lg">{log.taskName}</h4>
+                          </div>
+                          <div className="flex items-center space-x-6 text-sm text-grit-600 mb-3">
+                            <span className="flex items-center space-x-1">
+                              <FaCalendar className="text-grit-500" />
+                              <span className="font-medium">{log.date}</span>
+                            </span>
+                            <span className="flex items-center space-x-1">
+                              <FaClock className="text-neutral-500" />
+                              <span className="font-medium">{log.enduredTime}分</span>
+                            </span>
+                            <span className="bg-grit-100 text-grit-700 px-3 py-1 rounded-full font-semibold">
+                              苦しさ: {log.difficultyScore}/10
+                            </span>
+                          </div>
+                          {log.details && (
+                            <p className="text-grit-700 italic bg-neutral-50 p-3 rounded-lg border-l-4 border-neutral-500">
+                              "{log.details}"
+                            </p>
+                          )}
                         </div>
-                        <div className="flex items-center space-x-6 text-sm text-grit-600 mb-3">
+                        <div className="flex items-center space-x-3 ml-6">
+                          {/* 編集・削除ボタン */}
+                          <div className="flex flex-col space-y-2">
+                            <button
+                              onClick={() => handleStartEdit(log)}
+                              className="p-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-lg transition-colors"
+                              title="編集"
+                            >
+                              <FaEdit className="text-sm" />
+                            </button>
+                            <button
+                              onClick={() => setShowDeleteConfirm(log.id)}
+                              className="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors"
+                              title="削除"
+                            >
+                              <FaTrash className="text-sm" />
+                            </button>
+                          </div>
+                          {/* 耐久スコア */}
+                          <div className="bg-gradient-to-br from-grit-500 to-grit-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg">
+                            <div className="text-center">
+                              <div className="text-lg font-bold">{log.enduranceScore}</div>
+                              <div className="text-xs opacity-90">pt</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* モバイルレイアウト */}
+                      <div className="sm:hidden">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-2 h-2 bg-grit-500 rounded-full"></div>
+                            <h4 className="font-bold text-grit-800 text-lg">{log.taskName}</h4>
+                          </div>
+                          <div className="bg-gradient-to-br from-grit-500 to-grit-600 text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
+                            <div className="text-center">
+                              <div className="text-sm font-bold">{log.enduranceScore}</div>
+                              <div className="text-xs opacity-90">pt</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 text-sm text-grit-600 mb-3">
                           <span className="flex items-center space-x-1">
                             <FaCalendar className="text-grit-500" />
                             <span className="font-medium">{log.date}</span>
@@ -529,14 +592,11 @@ const Dashboard: React.FC = () => {
                           </span>
                         </div>
                         {log.details && (
-                          <p className="text-grit-700 italic bg-neutral-50 p-3 rounded-lg border-l-4 border-neutral-500">
+                          <p className="text-grit-700 italic bg-neutral-50 p-3 rounded-lg border-l-4 border-neutral-500 mb-3">
                             "{log.details}"
                           </p>
                         )}
-                      </div>
-                      <div className="flex items-center space-x-3 ml-6">
-                        {/* 編集・削除ボタン */}
-                        <div className="flex flex-col space-y-2">
+                        <div className="flex justify-end space-x-2">
                           <button
                             onClick={() => handleStartEdit(log)}
                             className="p-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-lg transition-colors"
@@ -551,13 +611,6 @@ const Dashboard: React.FC = () => {
                           >
                             <FaTrash className="text-sm" />
                           </button>
-                        </div>
-                        {/* 耐久スコア */}
-                        <div className="bg-gradient-to-br from-grit-500 to-grit-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg">
-                          <div className="text-center">
-                            <div className="text-lg font-bold">{log.enduranceScore}</div>
-                            <div className="text-xs opacity-90">pt</div>
-                          </div>
                         </div>
                       </div>
                     </div>
