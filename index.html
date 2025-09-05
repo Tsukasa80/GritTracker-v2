@@ -202,6 +202,35 @@
                 checkAndCompleteRewards(newGritLogs);
             };
 
+            // GritLog更新
+            const updateGritLog = (id, updates) => {
+                const newGritLogs = gritLogs.map(log => {
+                    if (log.id === id) {
+                        const updatedLog = { ...log, ...updates };
+                        // 苦しさスコアまたは時間が更新された場合、耐久スコアを再計算
+                        if (updates.difficultyScore !== undefined || updates.enduredTime !== undefined) {
+                            updatedLog.enduranceScore = calculateEnduranceScore(
+                                updatedLog.difficultyScore, 
+                                updatedLog.enduredTime
+                            );
+                        }
+                        return updatedLog;
+                    }
+                    return log;
+                });
+                setGritLogs(newGritLogs);
+                saveToStorage(newGritLogs, weeklyReviews, rewardSettings);
+                checkAndCompleteRewards(newGritLogs);
+            };
+
+            // GritLog削除
+            const deleteGritLog = (id) => {
+                const newGritLogs = gritLogs.filter(log => log.id !== id);
+                setGritLogs(newGritLogs);
+                saveToStorage(newGritLogs, weeklyReviews, rewardSettings);
+                checkAndCompleteRewards(newGritLogs);
+            };
+
             // 週次レビュー保存
             const saveWeeklyReview = (reviewData) => {
                 const newReview = {
