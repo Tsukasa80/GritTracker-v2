@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useGritStore } from '../store';
-import { FaTrophy, FaFire, FaGift, FaCalendar, FaClock, FaEdit, FaTrash, FaCheck, FaTimes, FaChartLine } from 'react-icons/fa';
+import { FaTrophy, FaGift, FaCalendar, FaClock, FaEdit, FaTrash, FaCheck, FaTimes, FaChartLine } from 'react-icons/fa';
 
 const Dashboard: React.FC = () => {
   const { 
