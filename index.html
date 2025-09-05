@@ -406,10 +406,10 @@
                                     <div className="space-y-4">
                                         {recentLogs.map((log) => (
                                             <div key={log.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all">
-                                                <div className="flex justify-between items-start">
+                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                                                     <div className="flex-1">
                                                         <h4 className="font-bold text-gray-800 text-lg mb-2">{log.taskName}</h4>
-                                                        <div className="flex items-center space-x-6 text-sm text-gray-600 mb-3">
+                                                        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-3">
                                                             <span>📅 {log.date}</span>
                                                             <span>⏱️ {log.enduredTime}分</span>
                                                             <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
@@ -417,15 +417,18 @@
                                                             </span>
                                                         </div>
                                                         {log.details && (
-                                                            <p className="text-gray-700 italic bg-gray-50 p-3 rounded-lg">
+                                                            <p className="text-gray-700 italic bg-gray-50 p-3 rounded-lg mb-3 sm:mb-0">
                                                                 "{log.details}"
                                                             </p>
                                                         )}
                                                     </div>
-                                                    <div className="bg-gradient-to-br from-green-500 to-gray-800 text-white w-16 h-16 rounded-xl flex items-center justify-center shadow-lg ml-4">
-                                                        <div className="text-center">
-                                                            <div className="text-lg font-bold">{log.enduranceScore}</div>
-                                                            <div className="text-xs opacity-90">pt</div>
+                                                    {/* スマホ: 下部中央、PC: 右側 */}
+                                                    <div className="flex justify-center sm:justify-end mt-4 sm:mt-0 sm:ml-4">
+                                                        <div className="bg-gradient-to-br from-green-500 to-gray-800 text-white w-20 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center shadow-lg">
+                                                            <div className="text-center">
+                                                                <div className="text-lg font-bold">{log.enduranceScore}</div>
+                                                                <div className="text-xs opacity-90">pt</div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -849,7 +852,7 @@
                                                             : 'border-gray-200 hover:border-grit-primary bg-white'
                                                     }`}
                                                 >
-                                                    <div className="flex justify-between items-start">
+                                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                                                         <div className="flex-1">
                                                             <div className="flex items-center gap-3 mb-3">
                                                                 <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-sm ${
@@ -866,7 +869,7 @@
                                                                 <h3 className="font-bold text-gray-800 text-lg">{log.taskName}</h3>
                                                             </div>
                                                             
-                                                            <div className="flex items-center space-x-6 text-sm text-gray-600 mb-3 ml-11">
+                                                            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-3 ml-0 sm:ml-11">
                                                                 <span>📅 {log.date}</span>
                                                                 <span>⏱️ {formatTimeFromMinutes(log.enduredTime)}</span>
                                                                 <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
@@ -882,15 +885,18 @@
                                                             </div>
                                                             
                                                             {log.details && (
-                                                                <p className="text-sm text-gray-700 italic bg-blue-50 p-3 rounded-lg ml-11">
+                                                                <p className="text-sm text-gray-700 italic bg-blue-50 p-3 rounded-lg ml-0 sm:ml-11 mb-3 sm:mb-0">
                                                                     "{log.details}"
                                                                 </p>
                                                             )}
                                                         </div>
-                                                        <div className="bg-gradient-to-br from-green-500 to-gray-800 text-white w-16 h-16 rounded-xl flex items-center justify-center shadow-lg ml-4">
-                                                            <div className="text-center">
-                                                                <div className="text-lg font-bold">{log.enduranceScore}</div>
-                                                                <div className="text-xs opacity-90">pt</div>
+                                                        {/* スマホ: 下部中央、PC: 右側 */}
+                                                        <div className="flex justify-center sm:justify-end mt-4 sm:mt-0 sm:ml-4">
+                                                            <div className="bg-gradient-to-br from-green-500 to-gray-800 text-white w-20 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center shadow-lg">
+                                                                <div className="text-center">
+                                                                    <div className="text-lg font-bold">{log.enduranceScore}</div>
+                                                                    <div className="text-xs opacity-90">pt</div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
