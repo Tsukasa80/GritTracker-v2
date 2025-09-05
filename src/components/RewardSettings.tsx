@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGritStore } from '../store';
-import { FaPlus, FaGift, FaTrophy, FaTrash, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaGift, FaTrophy, FaTrash, FaEdit, FaCheck, FaTimes, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 
 const RewardSettings: React.FC = () => {
   const { 
@@ -85,6 +85,22 @@ const RewardSettings: React.FC = () => {
     if (window.confirm(`「${rewardContent}」を削除しますか？`)) {
       deleteRewardSetting(id);
       alert('ご褒美を削除しました。');
+    }
+  };
+
+  const handleToggleCompleted = (reward: typeof rewardSettings[0]) => {
+    if (reward.isCompleted) {
+      // 完了済みを未完了に戻す
+      if (window.confirm(`「${reward.rewardContent}」を未済に戻しますか？`)) {
+        updateRewardSetting(reward.id, { isCompleted: false, completedAt: undefined });
+        alert('ステータスを未済に変更しました。');
+      }
+    } else {
+      // 未完了を完了にする
+      if (window.confirm(`「${reward.rewardContent}」を済にしますか？`)) {
+        updateRewardSetting(reward.id, { isCompleted: true, completedAt: new Date() });
+        alert('おめでとうございます！ステータスを済に変更しました。🎉');
+      }
     }
   };
 
@@ -300,21 +316,43 @@ const RewardSettings: React.FC = () => {
                       {/* ステータス - スターバックス風 */}
                       {reward.isCompleted ? (
                         <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
-                          <div className="text-green-700 font-bold text-lg flex items-center space-x-2">
-                            <FaTrophy className="text-xl" />
-                            <span>達成済み！</span>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="text-green-700 font-bold text-lg flex items-center space-x-2">
+                                <FaTrophy className="text-xl" />
+                                <span>達成済み！</span>
+                              </div>
+                              {reward.completedAt && (
+                                <p className="text-sm text-green-600 mt-1">
+                                  達成日: {reward.completedAt.toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => handleToggleCompleted(reward)}
+                              className="flex items-center space-x-2 bg-green-200 hover:bg-green-300 text-green-700 px-3 py-2 rounded-lg transition-colors text-sm"
+                              title="未済に戻す"
+                            >
+                              <FaToggleOff className="text-sm" />
+                              <span>未済に戻す</span>
+                            </button>
                           </div>
-                          {reward.completedAt && (
-                            <p className="text-sm text-green-600 mt-1">
-                              達成日: {reward.completedAt.toLocaleDateString()}
-                            </p>
-                          )}
                         </div>
                       ) : cumulativeScore >= reward.targetScore ? (
                         <div className="bg-gradient-to-r from-grit-50 to-neutral-50 p-4 rounded-xl border border-grit-200 animate-pulse">
-                          <div className="text-grit-700 font-bold text-lg flex items-center space-x-2">
-                            <span className="text-2xl">🎉</span>
-                            <span>おめでとうございます！ご褒美をゲットしました！</span>
+                          <div className="flex items-center justify-between">
+                            <div className="text-grit-700 font-bold text-lg flex items-center space-x-2">
+                              <span className="text-2xl">🎉</span>
+                              <span>おめでとうございます！ご褒美をゲットしました！</span>
+                            </div>
+                            <button
+                              onClick={() => handleToggleCompleted(reward)}
+                              className="flex items-center space-x-2 bg-grit-500 hover:bg-grit-600 text-white px-3 py-2 rounded-lg transition-colors text-sm"
+                              title="済にする"
+                            >
+                              <FaToggleOn className="text-sm" />
+                              <span>済</span>
+                            </button>
                           </div>
                         </div>
                       ) : (
