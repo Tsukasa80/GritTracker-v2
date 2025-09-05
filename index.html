@@ -545,6 +545,9 @@
                                         value={formData.difficultyScore}
                                         onChange={(e) => setFormData({ ...formData, difficultyScore: parseInt(e.target.value) })}
                                         className="w-full h-3 rounded-lg cursor-pointer slider"
+                                        style={{
+                                            background: 'linear-gradient(to right, #22c55e, #4ade80, #1f2937)'
+                                        }}
                                     />
                                     <div className="flex justify-between text-xs text-gray-600 font-medium mt-1">
                                         <span>1 (楽勝)</span>
