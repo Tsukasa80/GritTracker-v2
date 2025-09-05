@@ -31,7 +31,7 @@ dist-ssr
 .env.production.local
 
 # Dependencies
-package-lock.json
+# package-lock.json should be committed for reproducible builds
 
 # Build outputs
 build/
