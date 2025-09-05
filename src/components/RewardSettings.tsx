@@ -228,19 +228,19 @@ const RewardSettings: React.FC = () => {
                           />
                         </div>
                       </div>
-                      <div className="flex space-x-4">
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 justify-center sm:justify-start">
                         <button
                           onClick={handleSaveEdit}
-                          className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg flex items-center space-x-2"
+                          className="flex items-center justify-center space-x-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg text-sm font-medium min-w-[80px]"
                         >
-                          <FaCheck />
+                          <FaCheck className="text-xs" />
                           <span>保存</span>
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="bg-gray-500 text-white px-6 py-3 rounded-xl hover:bg-gray-600 transition-colors shadow-lg flex items-center space-x-2"
+                          className="flex items-center justify-center space-x-1.5 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all shadow-md hover:shadow-lg text-sm font-medium min-w-[80px]"
                         >
-                          <FaTimes />
+                          <FaTimes className="text-xs" />
                           <span>キャンセル</span>
                         </button>
                       </div>
