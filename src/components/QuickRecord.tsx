@@ -207,18 +207,18 @@ const QuickRecord: React.FC = () => {
           <div className="flex space-x-4 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-grit-500 to-grit-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:from-grit-600 hover:to-grit-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+              className="flex-1 bg-gradient-to-r from-grit-500 to-grit-600 text-white px-4 py-2 rounded-lg font-medium text-sm hover:from-grit-600 hover:to-grit-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center space-x-1.5"
             >
-              <FaSave className="text-xl" />
+              <FaSave className="text-sm" />
               <span>記録を保存</span>
             </button>
             
             <button
               type="button"
               onClick={handleReset}
-              className="bg-gray-500 text-white px-6 py-4 rounded-xl font-bold hover:bg-gray-600 transition-colors shadow-lg flex items-center justify-center space-x-2"
+              className="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-gray-600 transition-colors shadow-md flex items-center justify-center space-x-1.5"
             >
-              <FaTimes className="text-lg" />
+              <FaTimes className="text-sm" />
               <span>リセット</span>
             </button>
           </div>
