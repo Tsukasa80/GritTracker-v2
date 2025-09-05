@@ -94,9 +94,8 @@
             const [difficulty, setDifficulty] = React.useState(3);
             const [comment, setComment] = React.useState('');
             const [records, setRecords] = React.useState([]);
-            const [showHistory, setShowHistory] = React.useState(false);
 
-            // LocalStorageからデータを読み込み
+            // LocalStorageからデータを読み込み（非表示）
             React.useEffect(() => {
                 const savedRecords = localStorage.getItem('gritTrackerRecords');
                 if (savedRecords) {
@@ -104,13 +103,8 @@
                 }
             }, []);
 
-            // データ保存機能
+            // データ保存機能（非表示）
             const saveRecord = () => {
-                if (!comment.trim()) {
-                    alert('コメントを入力してください！');
-                    return;
-                }
-                
                 const newRecord = {
                     id: Date.now(),
                     date: new Date().toISOString().split('T')[0],
@@ -127,118 +121,70 @@
                 // フォームリセット
                 setComment('');
                 setDifficulty(3);
-                
-                alert('記録を保存しました！🎉\n\n総記録数: ' + updatedRecords.length + '件');
             };
 
             return (
                 <div className="min-h-screen bg-grit-gradient p-8">
                     <div className="max-w-4xl mx-auto">
                         <h1 className="text-4xl font-bold text-grit-600 mb-8 text-center">
-                            🔥 GritTracker v2.1.0
+                            🔥 GritTracker v1.2.2
                         </h1>
                         <p className="text-center text-grit-600 mb-8">
-                            粘り力を可視化する - シンプル版（実際に保存されます）
+                            粘り力を可視化する - 緑・白・黒テーマ版
                         </p>
                         
-                        {!showHistory ? (
-                            <>
-                                <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                                    <h2 className="text-2xl font-bold text-grit-600 mb-4">クイック記録</h2>
-                                    
-                                    <div className="mb-6">
-                                        <label className="block text-grit-600 font-medium mb-2">
-                                            苦しさレベル: {difficulty}
-                                        </label>
-                                        <input
-                                            type="range"
-                                            min="1"
-                                            max="5"
-                                            value={difficulty}
-                                            onChange={(e) => setDifficulty(e.target.value)}
-                                            className="w-full h-3 rounded-lg cursor-pointer slider"
-                                            style={{
-                                                background: 'linear-gradient(to right, #bbf7d0, #4ade80, #16a34a)'
-                                            }}
-                                        />
-                                        <div className="flex justify-between text-sm text-neutral-400 mt-1">
-                                            <span>楽</span>
-                                            <span>やや楽</span>
-                                            <span>普通</span>
-                                            <span>きつい</span>
-                                            <span>超きつい</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="mb-6">
-                                        <label className="block text-grit-600 font-medium mb-2">
-                                            コメント
-                                        </label>
-                                        <textarea
-                                            value={comment}
-                                            onChange={(e) => setComment(e.target.value)}
-                                            placeholder="今日頑張ったことを記録しよう..."
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent placeholder-neutral-400"
-                                            rows="3"
-                                        />
-                                    </div>
-                                    
-                                    <button 
-                                        onClick={saveRecord}
-                                        className="w-full bg-grit-500 hover:bg-grit-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
-                                    >
-                                        記録を保存
-                                    </button>
-                                </div>
-                                
-                                {records.length > 0 && (
-                                    <div className="text-center mb-6">
-                                        <button 
-                                            onClick={() => setShowHistory(true)}
-                                            className="bg-white text-grit-600 border-2 border-grit-500 px-6 py-2 rounded-lg font-medium hover:bg-grit-50 transition-colors"
-                                        >
-                                            📋 過去の記録を見る ({records.length}件)
-                                        </button>
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                                <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-2xl font-bold text-grit-600">過去の記録</h2>
-                                    <button 
-                                        onClick={() => setShowHistory(false)}
-                                        className="text-grit-600 hover:text-grit-800 font-medium"
-                                    >
-                                        × 閉じる
-                                    </button>
-                                </div>
-                                
-                                <div className="space-y-4 max-h-96 overflow-y-auto">
-                                    {records.map(record => (
-                                        <div key={record.id} className="border border-gray-200 rounded-lg p-4">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <span className="text-sm text-gray-500">{record.date} {record.time}</span>
-                                                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                                    record.difficulty <= 2 ? 'bg-green-100 text-green-800' :
-                                                    record.difficulty === 3 ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-red-100 text-red-800'
-                                                }`}>
-                                                    レベル {record.difficulty}
-                                                </span>
-                                            </div>
-                                            <p className="text-gray-700">{record.comment}</p>
-                                        </div>
-                                    ))}
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                            <h2 className="text-2xl font-bold text-grit-600 mb-4">クイック記録</h2>
+                            
+                            <div className="mb-6">
+                                <label className="block text-grit-600 font-medium mb-2">
+                                    苦しさレベル: {difficulty}
+                                </label>
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="5"
+                                    value={difficulty}
+                                    onChange={(e) => setDifficulty(e.target.value)}
+                                    className="w-full h-3 rounded-lg cursor-pointer slider"
+                                    style={{
+                                        background: 'linear-gradient(to right, #bbf7d0, #4ade80, #16a34a)'
+                                    }}
+                                />
+                                <div className="flex justify-between text-sm text-neutral-400 mt-1">
+                                    <span>楽</span>
+                                    <span>やや楽</span>
+                                    <span>普通</span>
+                                    <span>きつい</span>
+                                    <span>超きつい</span>
                                 </div>
                             </div>
-                        )}
+                            
+                            <div className="mb-6">
+                                <label className="block text-grit-600 font-medium mb-2">
+                                    コメント
+                                </label>
+                                <textarea
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    placeholder="今日頑張ったことを記録しよう..."
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent placeholder-neutral-400"
+                                    rows="3"
+                                />
+                            </div>
+                            
+                            <button 
+                                onClick={saveRecord}
+                                className="w-full bg-grit-500 hover:bg-grit-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                            >
+                                記録を保存
+                            </button>
+                        </div>
                         
                         <div className="text-center text-neutral-400 text-sm">
                             スライダーつまみ: 白いフチ付きグレーグラデーション ✅<br/>
                             配色: 緑・白・黒ベース ✅<br/>
-                            プレースホルダー: グレー系 ✅<br/>
-                            💾 データはブラウザーに保存されます ({records.length}件記録済)
+                            プレースホルダー: グレー系 ✅
                         </div>
                     </div>
                 </div>
