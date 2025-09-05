@@ -268,27 +268,6 @@ const RewardSettings: React.FC = () => {
                           </p>
                         </div>
 
-                        {/* アクションボタン - スマホ対応 */}
-                        {!reward.isCompleted && (
-                          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 ml-2">
-                            <button
-                              onClick={() => handleStartEdit(reward)}
-                              className="flex items-center justify-center space-x-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 px-4 py-2 rounded-lg transition-colors min-w-[80px] sm:min-w-[60px]"
-                              title="編集"
-                            >
-                              <FaEdit className="text-sm" />
-                              <span className="text-sm sm:hidden">編集</span>
-                            </button>
-                            <button
-                              onClick={() => handleDelete(reward.id, reward.rewardContent)}
-                              className="flex items-center justify-center space-x-2 bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2 rounded-lg transition-colors min-w-[80px] sm:min-w-[60px]"
-                              title="削除"
-                            >
-                              <FaTrash className="text-sm" />
-                              <span className="text-sm sm:hidden">削除</span>
-                            </button>
-                          </div>
-                        )}
                       </div>
 
                       {/* 進捗バー - スターバックス風 */}
@@ -343,6 +322,28 @@ const RewardSettings: React.FC = () => {
                           <div className="text-grit-700 font-semibold">
                             あと {(reward.targetScore - cumulativeScore).toLocaleString()}pt で達成！
                           </div>
+                        </div>
+                      )}
+
+                      {/* アクションボタン - スマホ対応 */}
+                      {!reward.isCompleted && (
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-4 justify-center sm:justify-start">
+                          <button
+                            onClick={() => handleStartEdit(reward)}
+                            className="flex items-center justify-center space-x-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 px-4 py-2 rounded-lg transition-colors min-w-[80px] sm:min-w-[60px]"
+                            title="編集"
+                          >
+                            <FaEdit className="text-sm" />
+                            <span className="text-sm sm:hidden">編集</span>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(reward.id, reward.rewardContent)}
+                            className="flex items-center justify-center space-x-2 bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2 rounded-lg transition-colors min-w-[80px] sm:min-w-[60px]"
+                            title="削除"
+                          >
+                            <FaTrash className="text-sm" />
+                            <span className="text-sm sm:hidden">削除</span>
+                          </button>
                         </div>
                       )}
                     </div>
