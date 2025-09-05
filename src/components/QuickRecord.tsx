@@ -116,7 +116,7 @@ const QuickRecord: React.FC = () => {
                 style={{
                   WebkitAppearance: 'none', 
                   appearance: 'none',
-                  background: 'linear-gradient(to right, #fbbf24, #f59e0b, #d97706)'
+                  background: 'linear-gradient(to right, #bbf7d0, #4ade80, #16a34a)'
                 }}
               />
               <div className="flex justify-between text-xs text-grit-600 font-medium mt-1">
