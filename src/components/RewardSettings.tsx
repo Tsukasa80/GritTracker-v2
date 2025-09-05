@@ -345,6 +345,28 @@ const RewardSettings: React.FC = () => {
                           </div>
                         </div>
                       )}
+
+                      {/* アクションボタン - スマホ対応 */}
+                      {!reward.isCompleted && (
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-4 justify-center sm:justify-start">
+                          <button
+                            onClick={() => handleStartEdit(reward)}
+                            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg min-w-[80px] sm:min-w-[60px]"
+                            title="編集"
+                          >
+                            <FaEdit className="text-sm" />
+                            <span className="text-sm sm:hidden">編集</span>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(reward.id, reward.rewardContent)}
+                            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg min-w-[80px] sm:min-w-[60px]"
+                            title="削除"
+                          >
+                            <FaTrash className="text-sm" />
+                            <span className="text-sm sm:hidden">削除</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
