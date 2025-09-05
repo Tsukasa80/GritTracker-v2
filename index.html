@@ -300,6 +300,11 @@
                 const weeklyTotalScore = getWeeklyTotalScore();
                 const cumulativeTotalScore = getCumulativeTotalScore();
                 
+                // 編集・削除用のstate
+                const [editingLog, setEditingLog] = React.useState(null);
+                const [editingData, setEditingData] = React.useState(null);
+                const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(null);
+                
                 const recentLogs = React.useMemo(() => {
                     return [...gritLogs]
                         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -313,6 +318,35 @@
                 }, [rewardSettings]);
 
                 const rewardProgress = nextReward ? Math.min((cumulativeTotalScore / nextReward.targetScore) * 100, 100) : 0;
+                
+                // 編集・削除ハンドラー
+                const handleStartEdit = (log) => {
+                    setEditingLog(log.id);
+                    setEditingData({
+                        taskName: log.taskName,
+                        difficultyScore: log.difficultyScore,
+                        enduredTime: log.enduredTime,
+                        details: log.details || ''
+                    });
+                };
+                
+                const handleSaveEdit = () => {
+                    if (editingLog && editingData) {
+                        updateGritLog(editingLog, editingData);
+                        setEditingLog(null);
+                        setEditingData(null);
+                    }
+                };
+                
+                const handleCancelEdit = () => {
+                    setEditingLog(null);
+                    setEditingData(null);
+                };
+                
+                const handleDeleteConfirm = (logId) => {
+                    deleteGritLog(logId);
+                    setShowDeleteConfirm(null);
+                };
 
                 return (
                     <div className="bg-grit-gradient p-8 min-h-screen">
@@ -406,32 +440,115 @@
                                     <div className="space-y-4">
                                         {recentLogs.map((log) => (
                                             <div key={log.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all">
-                                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                                                    <div className="flex-1">
-                                                        <h4 className="font-bold text-gray-800 text-lg mb-2">{log.taskName}</h4>
-                                                        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-3">
-                                                            <span>📅 {log.date}</span>
-                                                            <span>⏱️ {log.enduredTime}分</span>
-                                                            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
-                                                                苦しさ: {log.difficultyScore}/10
-                                                            </span>
+                                                {editingLog === log.id && editingData ? (
+                                                    // 編集モード
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <h4 className="font-bold text-gray-800 text-lg">📝 記録を編集中...</h4>
+                                                            <div className="flex space-x-2">
+                                                                <button
+                                                                    onClick={handleSaveEdit}
+                                                                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center space-x-2"
+                                                                >
+                                                                    <span>✓</span><span>保存</span>
+                                                                </button>
+                                                                <button
+                                                                    onClick={handleCancelEdit}
+                                                                    className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-colors flex items-center space-x-2"
+                                                                >
+                                                                    <span>✕</span><span>キャンセル</span>
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        {log.details && (
-                                                            <p className="text-gray-700 italic bg-gray-50 p-3 rounded-lg mb-3 sm:mb-0">
-                                                                "{log.details}"
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                    {/* スマホ: 下部中央、PC: 右側 */}
-                                                    <div className="flex justify-center sm:justify-end mt-4 sm:mt-0 sm:ml-4">
-                                                        <div className="bg-gradient-to-br from-green-500 to-gray-800 text-white w-20 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center shadow-lg">
-                                                            <div className="text-center">
-                                                                <div className="text-lg font-bold">{log.enduranceScore}</div>
-                                                                <div className="text-xs opacity-90">pt</div>
+                                                        
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div>
+                                                                <label className="block text-sm font-semibold text-gray-700 mb-2">タスク名</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={editingData.taskName}
+                                                                    onChange={(e) => setEditingData({...editingData, taskName: e.target.value})}
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-sm font-semibold text-gray-700 mb-2">苦しさレベル (1-10)</label>
+                                                                <input
+                                                                    type="number"
+                                                                    min="1"
+                                                                    max="10"
+                                                                    value={editingData.difficultyScore}
+                                                                    onChange={(e) => setEditingData({...editingData, difficultyScore: parseInt(e.target.value)})}
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-sm font-semibold text-gray-700 mb-2">耐久時間 (分)</label>
+                                                                <input
+                                                                    type="number"
+                                                                    min="1"
+                                                                    value={editingData.enduredTime}
+                                                                    onChange={(e) => setEditingData({...editingData, enduredTime: parseInt(e.target.value)})}
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-sm font-semibold text-gray-700 mb-2">詳細 (任意)</label>
+                                                                <textarea
+                                                                    value={editingData.details}
+                                                                    onChange={(e) => setEditingData({...editingData, details: e.target.value})}
+                                                                    rows={3}
+                                                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                ) : (
+                                                    // 表示モード
+                                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                                                        <div className="flex-1">
+                                                            <h4 className="font-bold text-gray-800 text-lg mb-2">{log.taskName}</h4>
+                                                            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-3">
+                                                                <span>📅 {log.date}</span>
+                                                                <span>⏱️ {log.enduredTime}分</span>
+                                                                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+                                                                    苦しさ: {log.difficultyScore}/10
+                                                                </span>
+                                                            </div>
+                                                            {log.details && (
+                                                                <p className="text-gray-700 italic bg-gray-50 p-3 rounded-lg mb-3 sm:mb-0">
+                                                                    "{log.details}"
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center space-x-3 mt-4 sm:mt-0 sm:ml-4">
+                                                            {/* 編集・削除ボタン */}
+                                                            <div className="flex flex-col space-y-2">
+                                                                <button
+                                                                    onClick={() => handleStartEdit(log)}
+                                                                    className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors"
+                                                                    title="編集"
+                                                                >
+                                                                    ✏️
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setShowDeleteConfirm(log.id)}
+                                                                    className="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors"
+                                                                    title="削除"
+                                                                >
+                                                                    🗑️
+                                                                </button>
+                                                            </div>
+                                                            {/* スコア表示 */}
+                                                            <div className="bg-gradient-to-br from-green-500 to-gray-800 text-white w-20 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center shadow-lg">
+                                                                <div className="text-center">
+                                                                    <div className="text-lg font-bold">{log.enduranceScore}</div>
+                                                                    <div className="text-xs opacity-90">pt</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -538,6 +655,36 @@
                                 </p>
                             </div>
                         </div>
+
+                        {/* 削除確認ダイアログ */}
+                        {showDeleteConfirm && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl">
+                                    <div className="text-center">
+                                        <div className="text-6xl mb-4">🗑️</div>
+                                        <h3 className="text-xl font-bold text-gray-800 mb-4">記録を削除しますか？</h3>
+                                        <p className="text-gray-600 mb-6">
+                                            この操作は元に戻すことができません。<br />
+                                            本当に削除してもよろしいですか？
+                                        </p>
+                                        <div className="flex space-x-4 justify-center">
+                                            <button
+                                                onClick={() => setShowDeleteConfirm(null)}
+                                                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                                            >
+                                                キャンセル
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteConfirm(showDeleteConfirm)}
+                                                className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+                                            >
+                                                削除する
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 );
             };
