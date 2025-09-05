@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GritTracker v1.2.2 - 粘り力を可視化する</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* カスタム配色設定 */
+        :root {
+            --color-grit-50: #f0fdf4;
+            --color-grit-500: #22c55e;
+            --color-grit-600: #16a34a;
+            --color-neutral-50: #fafafa;
+            --color-neutral-400: #a3a3a3;
+            --color-neutral-700: #404040;
+        }
+        
+        /* スライダーのつまみを強制的にグレー系に変更 */
+        input[type="range"].slider {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        /* WebKit (Chrome, Safari, Edge) */
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            height: 24px !important;
+            width: 24px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, #e5e5e5, #737373) !important;
+            cursor: pointer !important;
+            border: 3px solid #ffffff !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+            -webkit-transition: all 0.2s ease !important;
+            transition: all 0.2s ease !important;
+            position: relative !important;
+            z-index: 2 !important;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            background: linear-gradient(135deg, #f5f5f5, #525252) !important;
+            transform: scale(1.15) !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4) !important;
+        }
+        
+        /* Firefox */
+        .slider::-moz-range-thumb {
+            height: 24px !important;
+            width: 24px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, #e5e5e5, #737373) !important;
+            cursor: pointer !important;
+            border: 3px solid #ffffff !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        /* スライダートラック */
+        .slider::-webkit-slider-track {
+            height: 12px !important;
+            border-radius: 6px !important;
+            background: linear-gradient(to right, #bbf7d0, #4ade80, #16a34a) !important;
+        }
+        
+        .slider::-moz-range-track {
+            height: 12px !important;
+            border-radius: 6px !important;
+            border: none !important;
+            background: linear-gradient(to right, #bbf7d0, #4ade80, #16a34a) !important;
+        }
+        
+        /* グリーン系の配色 */
+        .bg-grit-gradient {
+            background: linear-gradient(to bottom right, var(--color-grit-50), var(--color-neutral-50), #e8f5e8);
+        }
+        
+        .text-grit-600 { color: var(--color-grit-600); }
+        .bg-grit-500 { background-color: var(--color-grit-500); }
+        .bg-grit-600 { background-color: var(--color-grit-600); }
+        .placeholder-neutral { color: var(--color-neutral-400); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        function App() {
+            const [difficulty, setDifficulty] = React.useState(3);
+            const [comment, setComment] = React.useState('');
+
+            return (
+                <div className="min-h-screen bg-grit-gradient p-8">
+                    <div className="max-w-4xl mx-auto">
+                        <h1 className="text-4xl font-bold text-grit-600 mb-8 text-center">
+                            🔥 GritTracker v1.2.2
+                        </h1>
+                        <p className="text-center text-grit-600 mb-8">
+                            粘り力を可視化する - 緑・白・黒テーマ版
+                        </p>
+                        
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                            <h2 className="text-2xl font-bold text-grit-600 mb-4">クイック記録</h2>
+                            
+                            <div className="mb-6">
+                                <label className="block text-grit-600 font-medium mb-2">
+                                    苦しさレベル: {difficulty}
+                                </label>
+                                <input
+                                    type="range"
+                                    min="1"
+                                    max="5"
+                                    value={difficulty}
+                                    onChange={(e) => setDifficulty(e.target.value)}
+                                    className="w-full h-3 rounded-lg cursor-pointer slider"
+                                    style={{
+                                        background: 'linear-gradient(to right, #bbf7d0, #4ade80, #16a34a)'
+                                    }}
+                                />
+                                <div className="flex justify-between text-sm text-neutral-400 mt-1">
+                                    <span>楽</span>
+                                    <span>やや楽</span>
+                                    <span>普通</span>
+                                    <span>きつい</span>
+                                    <span>超きつい</span>
+                                </div>
+                            </div>
+                            
+                            <div className="mb-6">
+                                <label className="block text-grit-600 font-medium mb-2">
+                                    コメント
+                                </label>
+                                <textarea
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    placeholder="今日頑張ったことを記録しよう..."
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grit-500 focus:border-transparent placeholder-neutral-400"
+                                    rows="3"
+                                />
+                            </div>
+                            
+                            <button className="w-full bg-grit-500 hover:bg-grit-600 text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                                記録を保存
+                            </button>
+                        </div>
+                        
+                        <div className="text-center text-neutral-400 text-sm">
+                            スライダーつまみ: 白いフチ付きグレーグラデーション ✅<br/>
+                            配色: 緑・白・黒ベース ✅<br/>
+                            プレースホルダー: グレー系 ✅
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
