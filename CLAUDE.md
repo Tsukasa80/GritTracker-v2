@@ -82,6 +82,38 @@ git push origin main
 - `git safe-push` - 安全なプッシュ
 - `git sync` - リモートとの同期状況確認
 
+### 🤖 自動チェック機能
+
+以下の方法で`git check`を自動実行できます：
+
+#### 方法1: ブランチ切り替え時（既に設定済み）
+```bash
+git checkout main  # 自動でチェック実行
+git switch feature # 自動でチェック実行
+```
+
+#### 方法2: VS Code Task
+- `Ctrl+Shift+P` → `Tasks: Run Task` → `Git Status Check`
+
+#### 方法3: Windows PowerShell自動設定
+```powershell
+# 管理者権限でPowerShellを起動し実行
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+./setup-windows-autocheck.ps1
+```
+
+#### 方法4: 手動でシェル設定
+```bash
+# .bashrc または .zshrc に追加
+source ./.grittracker-autocheck.sh
+```
+
+### 📊 自動チェックの特徴
+
+- **頻度制限**: 10分間隔でチェック（無駄な実行を防止）
+- **対象限定**: GritTrackerディレクトリでのみ動作
+- **非侵入的**: 作業の邪魔にならないタイミングで実行
+
 ### 🔧 テストとビルド
 
 変更後は必ず以下を実行：
