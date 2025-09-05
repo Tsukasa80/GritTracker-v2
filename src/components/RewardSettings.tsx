@@ -247,102 +247,102 @@ const RewardSettings: React.FC = () => {
                     </div>
                   ) : (
                     /* 表示モード */
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-3">
-                        {reward.isCompleted ? (
-                          <div className="text-3xl">🎉</div>
-                        ) : cumulativeScore >= reward.targetScore ? (
-                          <div className="text-3xl animate-bounce">✨</div>
-                        ) : (
-                          <div className="text-3xl">🎁</div>
+                    <div className="w-full">
+                      <div className="flex items-center space-x-3 mb-3">
+                      {reward.isCompleted ? (
+                        <div className="text-3xl">🎉</div>
+                      ) : cumulativeScore >= reward.targetScore ? (
+                        <div className="text-3xl animate-bounce">✨</div>
+                      ) : (
+                        <div className="text-3xl">🎁</div>
+                      )}
+                      
+                        <div className="flex-1">
+                          <h3 className={`text-xl font-bold mb-1 ${
+                            reward.isCompleted ? 'text-green-700' : 'text-grit-800'
+                          }`}>
+                            {reward.rewardContent}
+                          </h3>
+                          <p className="text-sm text-grit-600 font-medium">
+                            目標: {reward.targetScore.toLocaleString()}pt
+                          </p>
+                        </div>
+
+                        {/* アクションボタン - スマホ対応 */}
+                        {!reward.isCompleted && (
+                          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 ml-2">
+                            <button
+                              onClick={() => handleStartEdit(reward)}
+                              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg min-w-[80px] sm:min-w-[60px]"
+                              title="編集"
+                            >
+                              <FaEdit className="text-sm" />
+                              <span className="text-sm sm:hidden">編集</span>
+                            </button>
+                            <button
+                              onClick={() => handleDelete(reward.id, reward.rewardContent)}
+                              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg min-w-[80px] sm:min-w-[60px]"
+                              title="削除"
+                            >
+                              <FaTrash className="text-sm" />
+                              <span className="text-sm sm:hidden">削除</span>
+                            </button>
+                          </div>
                         )}
-                        
-                          <div>
-                            <h3 className={`text-xl font-bold mb-1 ${
-                              reward.isCompleted ? 'text-green-700' : 'text-grit-800'
-                            }`}>
-                              {reward.rewardContent}
-                            </h3>
-                            <p className="text-sm text-grit-600 font-medium">
-                              目標: {reward.targetScore.toLocaleString()}pt
+                      </div>
+
+                      {/* 進捗バー - スターバックス風 */}
+                      <div className="mb-4 bg-grit-50/50 p-4 rounded-xl border border-grit-100">
+                        <div className="flex justify-between text-sm text-grit-700 font-semibold mb-2">
+                          <span>進捗状況</span>
+                          <span>
+                            {Math.min(cumulativeScore, reward.targetScore).toLocaleString()} / {reward.targetScore.toLocaleString()}pt
+                          </span>
+                        </div>
+                        <div className="w-full bg-grit-200 rounded-full h-4 shadow-inner">
+                          <div
+                            className={`h-4 rounded-full transition-all duration-700 shadow-sm ${
+                              reward.isCompleted
+                                ? 'bg-gradient-to-r from-green-400 to-green-600'
+                                : cumulativeScore >= reward.targetScore
+                                ? 'bg-gradient-to-r from-grit-400 to-grit-600 animate-pulse'
+                                : 'bg-gradient-to-r from-grit-500 to-grit-600'
+                            }`}
+                            style={{
+                              width: `${Math.min((cumulativeScore / reward.targetScore) * 100, 100)}%`
+                            }}
+                          />
+                        </div>
+                        <div className="text-right text-sm text-grit-600 font-medium mt-2">
+                          {((cumulativeScore / reward.targetScore) * 100).toFixed(1)}%達成
+                        </div>
+                      </div>
+
+                      {/* ステータス - スターバックス風 */}
+                      {reward.isCompleted ? (
+                        <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+                          <div className="text-green-700 font-bold text-lg flex items-center space-x-2">
+                            <FaTrophy className="text-xl" />
+                            <span>達成済み！</span>
+                          </div>
+                          {reward.completedAt && (
+                            <p className="text-sm text-green-600 mt-1">
+                              達成日: {reward.completedAt.toLocaleDateString()}
                             </p>
+                          )}
+                        </div>
+                      ) : cumulativeScore >= reward.targetScore ? (
+                        <div className="bg-gradient-to-r from-grit-50 to-neutral-50 p-4 rounded-xl border border-grit-200 animate-pulse">
+                          <div className="text-grit-700 font-bold text-lg flex items-center space-x-2">
+                            <span className="text-2xl">🎉</span>
+                            <span>おめでとうございます！ご褒美をゲットしました！</span>
                           </div>
                         </div>
-
-                        {/* 進捗バー - スターバックス風 */}
-                        <div className="mb-4 bg-grit-50/50 p-4 rounded-xl border border-grit-100">
-                          <div className="flex justify-between text-sm text-grit-700 font-semibold mb-2">
-                            <span>進捗状況</span>
-                            <span>
-                              {Math.min(cumulativeScore, reward.targetScore).toLocaleString()} / {reward.targetScore.toLocaleString()}pt
-                            </span>
+                      ) : (
+                        <div className="bg-grit-50 p-4 rounded-xl border border-grit-200">
+                          <div className="text-grit-700 font-semibold">
+                            あと {(reward.targetScore - cumulativeScore).toLocaleString()}pt で達成！
                           </div>
-                          <div className="w-full bg-grit-200 rounded-full h-4 shadow-inner">
-                            <div
-                              className={`h-4 rounded-full transition-all duration-700 shadow-sm ${
-                                reward.isCompleted
-                                  ? 'bg-gradient-to-r from-green-400 to-green-600'
-                                  : cumulativeScore >= reward.targetScore
-                                  ? 'bg-gradient-to-r from-grit-400 to-grit-600 animate-pulse'
-                                  : 'bg-gradient-to-r from-grit-500 to-grit-600'
-                              }`}
-                              style={{
-                                width: `${Math.min((cumulativeScore / reward.targetScore) * 100, 100)}%`
-                              }}
-                            />
-                          </div>
-                          <div className="text-right text-sm text-grit-600 font-medium mt-2">
-                            {((cumulativeScore / reward.targetScore) * 100).toFixed(1)}%達成
-                          </div>
-                        </div>
-
-                        {/* ステータス - スターバックス風 */}
-                        {reward.isCompleted ? (
-                          <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
-                            <div className="text-green-700 font-bold text-lg flex items-center space-x-2">
-                              <FaTrophy className="text-xl" />
-                              <span>達成済み！</span>
-                            </div>
-                            {reward.completedAt && (
-                              <p className="text-sm text-green-600 mt-1">
-                                達成日: {reward.completedAt.toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
-                        ) : cumulativeScore >= reward.targetScore ? (
-                          <div className="bg-gradient-to-r from-grit-50 to-neutral-50 p-4 rounded-xl border border-grit-200 animate-pulse">
-                            <div className="text-grit-700 font-bold text-lg flex items-center space-x-2">
-                              <span className="text-2xl">🎉</span>
-                              <span>おめでとうございます！ご褒美をゲットしました！</span>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="bg-grit-50 p-4 rounded-xl border border-grit-200">
-                            <div className="text-grit-700 font-semibold">
-                              あと {(reward.targetScore - cumulativeScore).toLocaleString()}pt で達成！
-                            </div>
-                          </div>
-                        )}
-                    </div>
-
-                      {/* アクションボタン - スターバックス風 */}
-                      {!reward.isCompleted && (
-                        <div className="flex space-x-3 ml-6">
-                          <button
-                            onClick={() => handleStartEdit(reward)}
-                            className="text-grit-600 hover:text-grit-700 p-3 rounded-xl hover:bg-grit-50 transition-all shadow-sm hover:shadow-md"
-                            title="編集"
-                          >
-                            <FaEdit className="text-lg" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(reward.id, reward.rewardContent)}
-                            className="text-grit-500 hover:text-neutral-700 p-3 rounded-xl hover:bg-grit-50 transition-all shadow-sm hover:shadow-md"
-                            title="削除"
-                          >
-                            <FaTrash className="text-lg" />
-                          </button>
                         </div>
                       )}
                     </div>
