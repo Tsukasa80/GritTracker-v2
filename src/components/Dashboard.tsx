@@ -101,10 +101,11 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* メインスタッツ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* 今週の合計耐久スコア */}
-          <div className="bg-white/80 backdrop-blur-sm border border-grit-200 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
-            <div className="flex items-center justify-between">
+          <div className="bg-white/80 backdrop-blur-sm border border-grit-200 p-4 sm:p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+            {/* デスクトップレイアウト */}
+            <div className="hidden sm:flex items-center justify-between">
               <div>
                 <div className="inline-flex items-center space-x-2 mb-2">
                   <div className="w-2 h-2 bg-grit-500 rounded-full"></div>
@@ -117,11 +118,25 @@ const Dashboard: React.FC = () => {
                 <FaFire className="text-lg text-white" />
               </div>
             </div>
+            
+            {/* モバイルレイアウト */}
+            <div className="sm:hidden text-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-grit-400 to-grit-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-3">
+                <FaFire className="text-lg text-white" />
+              </div>
+              <div className="inline-flex items-center space-x-2 mb-2">
+                <div className="w-2 h-2 bg-grit-500 rounded-full"></div>
+                <h3 className="text-sm font-semibold text-grit-800">今週の耐久スコア</h3>
+              </div>
+              <p className="text-2xl font-bold text-grit-700 mb-1">{weeklyTotalScore.toLocaleString()}</p>
+              <p className="text-grit-600 text-xs font-medium">ポイント</p>
+            </div>
           </div>
 
           {/* 累計耐久スコア */}
-          <div className="bg-white/80 backdrop-blur-sm border border-neutral-200 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
-            <div className="flex items-center justify-between">
+          <div className="bg-white/80 backdrop-blur-sm border border-neutral-200 p-4 sm:p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+            {/* デスクトップレイアウト */}
+            <div className="hidden sm:flex items-center justify-between">
               <div>
                 <div className="inline-flex items-center space-x-2 mb-2">
                   <div className="w-2 h-2 bg-neutral-700 rounded-full"></div>
@@ -134,11 +149,25 @@ const Dashboard: React.FC = () => {
                 <FaTrophy className="text-lg text-white" />
               </div>
             </div>
+            
+            {/* モバイルレイアウト */}
+            <div className="sm:hidden text-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-neutral-600 to-neutral-700 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-3">
+                <FaTrophy className="text-lg text-white" />
+              </div>
+              <div className="inline-flex items-center space-x-2 mb-2">
+                <div className="w-2 h-2 bg-neutral-700 rounded-full"></div>
+                <h3 className="text-sm font-semibold text-neutral-800">累計耐久スコア</h3>
+              </div>
+              <p className="text-2xl font-bold text-neutral-700 mb-1">{cumulativeTotalScore.toLocaleString()}</p>
+              <p className="text-neutral-600 text-xs font-medium">総ポイント</p>
+            </div>
           </div>
 
           {/* 今週の記録数 */}
-          <div className="bg-white/80 backdrop-blur-sm border border-blue-200 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
-            <div className="flex items-center justify-between">
+          <div className="bg-white/80 backdrop-blur-sm border border-blue-200 p-4 sm:p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+            {/* デスクトップレイアウト */}
+            <div className="hidden sm:flex items-center justify-between">
               <div>
                 <div className="inline-flex items-center space-x-2 mb-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -151,11 +180,25 @@ const Dashboard: React.FC = () => {
                 <FaCalendar className="text-lg text-white" />
               </div>
             </div>
+            
+            {/* モバイルレイアウト */}
+            <div className="sm:hidden text-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-3">
+                <FaCalendar className="text-lg text-white" />
+              </div>
+              <div className="inline-flex items-center space-x-2 mb-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <h3 className="text-sm font-semibold text-blue-800">今週の記録数</h3>
+              </div>
+              <p className="text-2xl font-bold text-blue-700 mb-1">{weeklyRecordCount}</p>
+              <p className="text-blue-600 text-xs font-medium">件</p>
+            </div>
           </div>
 
           {/* 平均耐久スコア */}
-          <div className="bg-white/80 backdrop-blur-sm border border-purple-200 p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
-            <div className="flex items-center justify-between">
+          <div className="bg-white/80 backdrop-blur-sm border border-purple-200 p-4 sm:p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+            {/* デスクトップレイアウト */}
+            <div className="hidden sm:flex items-center justify-between">
               <div>
                 <div className="inline-flex items-center space-x-2 mb-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -169,6 +212,21 @@ const Dashboard: React.FC = () => {
               <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <FaChartLine className="text-lg text-white" />
               </div>
+            </div>
+            
+            {/* モバイルレイアウト */}
+            <div className="sm:hidden text-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-3">
+                <FaChartLine className="text-lg text-white" />
+              </div>
+              <div className="inline-flex items-center space-x-2 mb-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <h3 className="text-sm font-semibold text-purple-800">1件あたり平均</h3>
+              </div>
+              <p className="text-2xl font-bold text-purple-700 mb-1">
+                {weeklyRecordCount > 0 ? Math.round(weeklyTotalScore / weeklyRecordCount) : 0}
+              </p>
+              <p className="text-purple-600 text-xs font-medium">ポイント</p>
             </div>
           </div>
         </div>
