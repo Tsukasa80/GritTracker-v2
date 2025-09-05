@@ -115,14 +115,14 @@ const Dashboard: React.FC = () => {
                 <p className="text-grit-600 text-xs font-medium">ポイント</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-grit-400 to-grit-600 rounded-xl flex items-center justify-center shadow-lg">
-                <FaFire className="text-lg text-white" />
+                <FaCalendar className="text-lg text-white" />
               </div>
             </div>
             
             {/* モバイルレイアウト */}
             <div className="sm:hidden text-center">
               <div className="w-10 h-10 bg-gradient-to-br from-grit-400 to-grit-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-3">
-                <FaFire className="text-lg text-white" />
+                <FaCalendar className="text-lg text-white" />
               </div>
               <div className="inline-flex items-center space-x-2 mb-2">
                 <div className="w-2 h-2 bg-grit-500 rounded-full"></div>
@@ -596,20 +596,20 @@ const Dashboard: React.FC = () => {
                             "{log.details}"
                           </p>
                         )}
-                        <div className="flex justify-end space-x-2">
+                        <div className="flex space-x-3 pt-2">
                           <button
                             onClick={() => handleStartEdit(log)}
-                            className="p-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-lg transition-colors"
-                            title="編集"
+                            className="flex-1 p-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-600 rounded-lg transition-colors flex items-center justify-center space-x-2"
                           >
                             <FaEdit className="text-sm" />
+                            <span className="text-sm">編集</span>
                           </button>
                           <button
                             onClick={() => setShowDeleteConfirm(log.id)}
-                            className="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors"
-                            title="削除"
+                            className="flex-1 p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors flex items-center justify-center space-x-2"
                           >
                             <FaTrash className="text-sm" />
+                            <span className="text-sm">削除</span>
                           </button>
                         </div>
                       </div>
