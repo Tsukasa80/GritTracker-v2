@@ -9,13 +9,14 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 緑・白・黒系統配色 */
+        /* 緑・ベージュ系統配色 */
         :root {
             --color-green: #22c55e;
             --color-green-light: #4ade80;
             --color-green-dark: #16a34a;
-            --color-black: #1f2937;
-            --color-gray-dark: #374151;
+            --color-beige: #d2b48c;
+            --color-beige-dark: #c19a6b;
+            --color-gray-dark: #8b7355;
         }
         
         /* スライダーのカスタムスタイル */
@@ -33,7 +34,7 @@
             height: 24px !important;
             width: 24px !important;
             border-radius: 50% !important;
-            background: linear-gradient(45deg, #22c55e, #1f2937) !important;
+            background: linear-gradient(45deg, #22c55e, #d2b48c) !important;
             cursor: pointer !important;
             border: 2px solid #ffffff !important;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
@@ -50,7 +51,7 @@
             height: 24px !important;
             width: 24px !important;
             border-radius: 50% !important;
-            background: linear-gradient(45deg, #22c55e, #1f2937) !important;
+            background: linear-gradient(45deg, #22c55e, #d2b48c) !important;
             cursor: pointer !important;
             border: 2px solid #ffffff !important;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
@@ -60,45 +61,45 @@
         .slider::-webkit-slider-track {
             height: 12px !important;
             border-radius: 6px !important;
-            background: linear-gradient(to right, #22c55e, #4ade80, #1f2937) !important;
+            background: linear-gradient(to right, #22c55e, #4ade80, #d2b48c) !important;
         }
         
         .slider::-moz-range-track {
             height: 12px !important;
             border-radius: 6px !important;
-            background: linear-gradient(to right, #22c55e, #4ade80, #1f2937) !important;
+            background: linear-gradient(to right, #22c55e, #4ade80, #d2b48c) !important;
             border: none !important;
         }
         
         /* カスタムクラス */
         .bg-grit-gradient {
-            background: linear-gradient(135deg, #22c55e 0%, #4ade80 50%, #1f2937 100%);
+            background: linear-gradient(135deg, #22c55e 0%, #4ade80 50%, #d2b48c 100%);
         }
         
         .btn-grit {
-            background: linear-gradient(135deg, #22c55e, #1f2937);
+            background: linear-gradient(135deg, #22c55e, #d2b48c);
             transition: all 0.2s ease;
         }
         
         .btn-grit:hover {
-            background: linear-gradient(135deg, #16a34a, #374151);
+            background: linear-gradient(135deg, #16a34a, #c19a6b);
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
         }
         
         .text-grit-gradient {
-            background: linear-gradient(135deg, #22c55e, #1f2937);
+            background: linear-gradient(135deg, #22c55e, #d2b48c);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
         .text-grit-primary { color: #22c55e; }
-        .text-grit-secondary { color: #1f2937; }
+        .text-grit-secondary { color: #d2b48c; }
         .bg-grit-primary { background-color: #22c55e; }
-        .bg-grit-secondary { background-color: #1f2937; }
+        .bg-grit-secondary { background-color: #d2b48c; }
         .border-grit-primary { border-color: #22c55e; }
-        .border-grit-secondary { border-color: #1f2937; }
+        .border-grit-secondary { border-color: #d2b48c; }
     </style>
 </head>
 <body>
@@ -546,7 +547,7 @@
                                         onChange={(e) => setFormData({ ...formData, difficultyScore: parseInt(e.target.value) })}
                                         className="w-full h-3 rounded-lg cursor-pointer slider"
                                         style={{
-                                            background: 'linear-gradient(to right, #22c55e, #4ade80, #1f2937)'
+                                            background: 'linear-gradient(to right, #22c55e, #4ade80, #d2b48c)'
                                         }}
                                     />
                                     <div className="flex justify-between text-xs text-gray-600 font-medium mt-1">
@@ -1397,7 +1398,7 @@
                                     <span>🎉 自己肯定感UP</span>
                                 </div>
                                 <div className="mt-4 text-center text-gray-500 text-sm">
-                                    🎨 緑・白・黒系統の美しい配色<br/>
+                                    🎨 緑・ベージュ系統の美しい配色<br/>
                                     💾 データはブラウザに保存されます ({gritLogs.length}件記録済)
                                 </div>
                             </div>
