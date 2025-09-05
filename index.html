@@ -291,7 +291,7 @@
             const navigationItems = [
                 { key: 'dashboard', label: 'ダッシュボード', icon: '📊', description: '成果を可視化' },
                 { key: 'record', label: '記録する', icon: '✏️', description: '粘りを記録' },
-                { key: 'review', label: '振り返り', icon: '📋', description: '週次レビュー' },
+                { key: 'review', label: '振返り', icon: '📋', description: '週次レビュー' },
                 { key: 'rewards', label: 'ご褒美', icon: '🎁', description: 'モチベーション' },
             ];
 
@@ -735,7 +735,7 @@
                 );
             };
 
-            // 週次振り返りコンポーネント
+            // 週次振返りコンポーネント
             const WeeklyReview = () => {
                 const today = new Date();
                 const thisWeekStart = getWeekStartDate(today);
@@ -775,9 +775,9 @@
                             bestOfWeek: selectedBestLogs,
                             reflections,
                         });
-                        alert('週次振り返りを保存しました！🎉 お疲れさまでした！');
+                        alert('週次振返りを保存しました！🎉 お疲れさまでした！');
                     } else {
-                        alert('すべての振り返り項目を入力してください。');
+                        alert('すべての振返り項目を入力してください。');
                     }
                 };
 
@@ -797,9 +797,9 @@
                             {/* ヘッダー */}
                             <div className="text-center py-8">
                                 <div className="text-6xl mb-4">📋</div>
-                                <h1 className="text-4xl font-bold text-grit-gradient mb-3 drop-shadow-lg">週次振り返り</h1>
+                                <h1 className="text-4xl font-bold text-grit-gradient mb-3 drop-shadow-lg">週次振返り</h1>
                                 <p className="text-gray-600 text-lg mb-4">{thisWeekStart} 〜 {thisWeekEnd}</p>
-                                <p className="text-gray-600">この週の「粘り」を振り返り、成長を実感しましょう</p>
+                                <p className="text-gray-600">この週の「粘り」を振返り、成長を実感しましょう</p>
                             </div>
 
                             {/* 今週の統計 */}
@@ -838,7 +838,7 @@
                                         <div className="text-center py-12 text-gray-600">
                                             <div className="text-4xl mb-4">📝</div>
                                             <p className="text-lg font-semibold mb-2">今週はまだ記録がありません</p>
-                                            <p className="text-sm">記録を作成してから振り返りを行いましょう！</p>
+                                            <p className="text-sm">記録を作成してから振返りを行いましょう！</p>
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
@@ -917,10 +917,10 @@
                                     )}
                                 </div>
 
-                                {/* 右カラム: 振り返り質問 */}
+                                {/* 右カラム: 振返り質問 */}
                                 <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl">
                                     <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center">
-                                        <span className="mr-3">⭐</span>振り返りの問い
+                                        <span className="mr-3">⭐</span>振返りの問い
                                     </h2>
                                     
                                     <div className="space-y-8">
@@ -973,13 +973,13 @@
                                             className="w-full btn-grit text-white font-bold py-4 px-8 rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                                         >
                                             <span className="text-xl">💾</span>
-                                            <span>振り返りを保存する</span>
+                                            <span>振返りを保存する</span>
                                         </button>
 
                                         {existingReview && (
                                             <div className="text-center p-4 bg-green-50 rounded-xl border border-green-200">
                                                 <p className="text-sm text-green-700 font-semibold">
-                                                    ✅ この週の振り返りは保存済みです
+                                                    ✅ この週の振返りは保存済みです
                                                 </p>
                                             </div>
                                         )}
@@ -990,10 +990,10 @@
                             {/* 励ましメッセージ */}
                             <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl text-center shadow-2xl">
                                 <div className="text-4xl mb-6">✨</div>
-                                <h3 className="text-2xl font-bold text-gray-800 mb-4">振り返りは成長への第一歩</h3>
+                                <h3 className="text-2xl font-bold text-gray-800 mb-4">振返りは成長への第一歩</h3>
                                 <p className="text-gray-700 text-lg leading-relaxed">
                                     過去の自分の努力を認め、感謝することで、未来への原動力が生まれます。
-                                    毎週の小さな振り返りが、大きな成長につながっていきます。
+                                    毎週の小さな振返りが、大きな成長につながっていきます。
                                 </p>
                             </div>
                         </div>
