@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useGritStore } from './store';
-import { FaChartLine, FaPlus, FaClipboardList, FaGift, FaBars, FaExclamationTriangle } from 'react-icons/fa';
+import { FaChartLine, FaPlus, FaClipboardList, FaGift, FaBars, FaExclamationTriangle, FaDownload, FaUpload } from 'react-icons/fa';
 import Dashboard from './components/Dashboard';
 import QuickRecord from './components/QuickRecord';
 import WeeklyReview from './components/WeeklyReview';
 import RewardSettings from './components/RewardSettings';
 
 function App() {
-  const { currentView, setCurrentView, clearLocalStorage, resetAllData } = useGritStore();
+  const { currentView, setCurrentView, clearLocalStorage, resetAllData, exportData, importData } = useGritStore();
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [, setError] = useState<string | null>(null);
@@ -24,6 +24,54 @@ function App() {
     window.addEventListener('error', handleError);
     return () => window.removeEventListener('error', handleError);
   }, []);
+  
+  const handleExportData = () => {
+    try {
+      const jsonData = exportData();
+      const blob = new Blob([jsonData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+      a.href = url;
+      a.download = `grittracker-data-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      alert('データをエクスポートしました！📁');
+    } catch (error) {
+      alert('エクスポートに失敗しました。');
+    }
+  };
+  
+  const handleImportData = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const jsonData = event.target?.result as string;
+          const success = importData(jsonData);
+          if (success) {
+            alert('データをインポートしました！✨ ページを更新します。');
+            window.location.reload();
+          } else {
+            alert('インポートに失敗しました。ファイル形式を確認してください。');
+          }
+        } catch (error) {
+          alert('ファイルの読み込みに失敗しました。');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
 
   const navigationItems = [
     { 
@@ -83,6 +131,20 @@ function App() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
+              <button
+                onClick={handleExportData}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+              >
+                <FaDownload className="text-xs" />
+                <span>エクスポート</span>
+              </button>
+              <button
+                onClick={handleImportData}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+              >
+                <FaUpload className="text-xs" />
+                <span>インポート</span>
+              </button>
               <button
                 onClick={() => {
                   resetAllData();
