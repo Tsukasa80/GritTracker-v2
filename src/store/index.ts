@@ -12,7 +12,8 @@ import {
   formatMonth,
   calculateEnduranceScore,
   calculateWeeklyStats,
-  calculateMonthlyStats
+  calculateMonthlyStats,
+  getLogsForWeek
 } from '../utils';
 
 interface GritStore extends AppState {
@@ -236,8 +237,8 @@ export const useGritStore = create<GritStore>()(
         const state = get();
         const today = new Date();
         const thisWeekStart = getWeekStartDate(today);
-        const weekStats = state.weeklyStats[thisWeekStart];
-        return weekStats?.totalEnduranceScore || 0;
+        const weekLogs = getLogsForWeek(state.gritLogs, thisWeekStart);
+        return weekLogs.reduce((total, log) => total + log.enduranceScore, 0);
       },
       
       getCumulativeTotalScore: () => {
@@ -253,7 +254,10 @@ export const useGritStore = create<GritStore>()(
         for (let i = days - 1; i >= 0; i--) {
           const date = new Date(today);
           date.setDate(today.getDate() - i);
-          const dateString = date.toISOString().split('T')[0];
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const dateString = `${year}-${month}-${day}`;
           
           const dayLogs = state.gritLogs.filter(log => log.date === dateString);
           const dayScore = dayLogs.reduce((sum, log) => sum + log.enduranceScore, 0);
@@ -272,13 +276,8 @@ export const useGritStore = create<GritStore>()(
         const state = get();
         const today = new Date();
         const thisWeekStart = getWeekStartDate(today);
-        const thisWeekEnd = new Date(thisWeekStart);
-        thisWeekEnd.setDate(thisWeekEnd.getDate() + 6);
-        
-        return state.gritLogs.filter(log => {
-          const logDate = new Date(log.date);
-          return logDate >= new Date(thisWeekStart) && logDate <= thisWeekEnd;
-        }).length;
+        const weekLogs = getLogsForWeek(state.gritLogs, thisWeekStart);
+        return weekLogs.length;
       },
       
       // Debug and Recovery Actions
