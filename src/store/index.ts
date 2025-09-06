@@ -42,6 +42,10 @@ interface GritStore extends AppState {
   getCumulativeTotalScore: () => number;
   getScoreTrendData: (days: number) => Array<{date: string, score: number, count: number}>;
   getWeeklyRecordCount: () => number;
+  
+  // Debug and Recovery Actions
+  resetAllData: () => void;
+  clearLocalStorage: () => void;
 }
 
 export const useGritStore = create<GritStore>()(
@@ -275,6 +279,23 @@ export const useGritStore = create<GritStore>()(
           const logDate = new Date(log.date);
           return logDate >= new Date(thisWeekStart) && logDate <= thisWeekEnd;
         }).length;
+      },
+      
+      // Debug and Recovery Actions
+      resetAllData: () => {
+        set({
+          gritLogs: [],
+          weeklyReviews: [],
+          rewardSettings: [],
+          currentView: 'dashboard',
+          weeklyStats: {},
+          monthlyStats: {},
+        });
+      },
+      
+      clearLocalStorage: () => {
+        localStorage.removeItem('grit-tracker-storage');
+        window.location.reload();
       },
     }),
     {

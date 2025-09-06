@@ -296,6 +296,22 @@ const RewardSettings: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* ステータス変更ボタン */}
+                      {cumulativeScore >= reward.targetScore && !reward.isCompleted && (
+                        <div className="mb-4">
+                          <button
+                            onClick={() => updateRewardSetting(reward.id, { 
+                              isCompleted: true, 
+                              completedAt: new Date() 
+                            })}
+                            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-6 rounded-xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                          >
+                            <span className="text-2xl">🎉</span>
+                            <span>ご褒美をゲットする！</span>
+                          </button>
+                        </div>
+                      )}
+                      
                       {/* ステータス - スターバックス風 */}
                       {reward.isCompleted ? (
                         <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
@@ -325,26 +341,47 @@ const RewardSettings: React.FC = () => {
                       )}
 
                       {/* アクションボタン - スマホ対応 */}
-                      {!reward.isCompleted && (
-                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-4 justify-center sm:justify-start">
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-4 justify-center sm:justify-start">
+                        {!reward.isCompleted && (
+                          <>
+                            <button
+                              onClick={() => handleStartEdit(reward)}
+                              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg min-w-[80px] sm:min-w-[60px]"
+                              title="編集"
+                            >
+                              <FaEdit className="text-sm" />
+                              <span className="text-sm sm:hidden">編集</span>
+                            </button>
+                            <button
+                              onClick={() => handleDelete(reward.id, reward.rewardContent)}
+                              className="flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg min-w-[80px] sm:min-w-[60px]"
+                              title="削除"
+                            >
+                              <FaTrash className="text-sm" />
+                              <span className="text-sm sm:hidden">削除</span>
+                            </button>
+                          </>
+                        )}
+                        
+                        {/* 完了済みのご褒美もリセット可能 */}
+                        {reward.isCompleted && (
                           <button
-                            onClick={() => handleStartEdit(reward)}
-                            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg min-w-[80px] sm:min-w-[60px]"
-                            title="編集"
+                            onClick={() => {
+                              if (window.confirm('このご褒美を未完了に戻しますか？')) {
+                                updateRewardSetting(reward.id, { 
+                                  isCompleted: false, 
+                                  completedAt: undefined 
+                                });
+                              }
+                            }}
+                            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all shadow-md hover:shadow-lg text-sm min-w-[80px] sm:min-w-[60px]"
+                            title="未完了に戻す"
                           >
-                            <FaEdit className="text-sm" />
-                            <span className="text-sm sm:hidden">編集</span>
+                            <span>↺</span>
+                            <span className="text-sm sm:hidden">リセット</span>
                           </button>
-                          <button
-                            onClick={() => handleDelete(reward.id, reward.rewardContent)}
-                            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg min-w-[80px] sm:min-w-[60px]"
-                            title="削除"
-                          >
-                            <FaTrash className="text-sm" />
-                            <span className="text-sm sm:hidden">削除</span>
-                          </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
