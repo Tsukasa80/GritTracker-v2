@@ -1,6 +1,75 @@
 import React, { useState } from 'react';
 import { useGritStore } from '../store';
-import { FaPlus, FaGift, FaTrophy, FaTrash, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaGift, FaTrophy, FaTrash, FaEdit, FaCheck, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+
+class RewardErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: string }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error: error.message };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('RewardSettings Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-grit-50 to-neutral-50 flex items-center justify-center p-6">
+          <div className="bg-white rounded-3xl p-8 shadow-xl border border-red-200 max-w-md w-full">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaExclamationTriangle className="text-3xl text-red-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-red-800 mb-4">
+                ご褒美ページでエラーが発生しました
+              </h2>
+              <p className="text-red-600 mb-6">
+                データに問題があるか、アプリが予期しない状態になっています。
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3 px-6 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300"
+                >
+                  ページをリロード
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm('全てのご褒美データを削除してリセットしますか？')) {
+                      localStorage.removeItem('grit-tracker-storage');
+                      window.location.reload();
+                    }
+                  }}
+                  className="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold py-3 px-6 rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300"
+                >
+                  データをリセット
+                </button>
+              </div>
+              {this.state.error && (
+                <details className="mt-4 text-left">
+                  <summary className="text-sm text-gray-600 cursor-pointer">エラー詳細</summary>
+                  <pre className="text-xs text-gray-500 mt-2 bg-gray-100 p-2 rounded overflow-x-auto">
+                    {this.state.error}
+                  </pre>
+                </details>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const RewardSettings: React.FC = () => {
   const { 
@@ -321,7 +390,13 @@ const RewardSettings: React.FC = () => {
                           </div>
                           {reward.completedAt && (
                             <p className="text-sm text-green-600 mt-1">
-                              達成日: {reward.completedAt.toLocaleDateString()}
+                              達成日: {(() => {
+                                try {
+                                  return new Date(reward.completedAt).toLocaleDateString();
+                                } catch {
+                                  return '日付不明';
+                                }
+                              })()}
                             </p>
                           )}
                         </div>
@@ -434,4 +509,12 @@ const RewardSettings: React.FC = () => {
   );
 };
 
-export default RewardSettings;
+const WrappedRewardSettings: React.FC = () => {
+  return (
+    <RewardErrorBoundary>
+      <RewardSettings />
+    </RewardErrorBoundary>
+  );
+};
+
+export default WrappedRewardSettings;
