@@ -5,12 +5,13 @@ import path from 'path'
 export default defineConfig(({ command }) => ({
   plugins: [react()],
   root: path.resolve(__dirname),
-  base: command === 'serve' ? '/' : './', // 開発時は '/'、GitHub Pagesビルド時は './' (相対パス)
+  base: command === 'serve' ? '/' : '/GritTracker-v2/', // GitHub Pagesのrepo名に合わせる
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true,
     rollupOptions: {
+      external: [],
       output: {
         // ファイル名に内容ベースのハッシュを生成
         entryFileNames: `assets/[name]-[hash].js`,
