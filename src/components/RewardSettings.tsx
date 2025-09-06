@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGritStore } from '../store';
-import { FaPlus, FaGift, FaTrophy, FaTrash, FaEdit, FaCheck, FaTimes, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import { FaPlus, FaGift, FaTrophy, FaTrash, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
 
 const RewardSettings: React.FC = () => {
   const { 
@@ -85,22 +85,6 @@ const RewardSettings: React.FC = () => {
     if (window.confirm(`「${rewardContent}」を削除しますか？`)) {
       deleteRewardSetting(id);
       alert('ご褒美を削除しました。');
-    }
-  };
-
-  const handleToggleCompleted = (reward: typeof rewardSettings[0]) => {
-    if (reward.isCompleted) {
-      // 完了済みを未完了に戻す
-      if (window.confirm(`「${reward.rewardContent}」を未済に戻しますか？`)) {
-        updateRewardSetting(reward.id, { isCompleted: false, completedAt: undefined });
-        alert('ステータスを未済に変更しました。');
-      }
-    } else {
-      // 未完了を完了にする
-      if (window.confirm(`「${reward.rewardContent}」を済にしますか？`)) {
-        updateRewardSetting(reward.id, { isCompleted: true, completedAt: new Date() });
-        alert('おめでとうございます！ステータスを済に変更しました。🎉');
-      }
     }
   };
 
