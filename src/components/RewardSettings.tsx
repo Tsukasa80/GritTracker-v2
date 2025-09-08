@@ -1,6 +1,75 @@
 import React, { useState } from 'react';
 import { useGritStore } from '../store';
-import { FaPlus, FaGift, FaTrophy, FaTrash, FaEdit, FaCheck, FaTimes, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import { FaPlus, FaGift, FaTrophy, FaTrash, FaEdit, FaCheck, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+
+class RewardErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: string }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error: error.message };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('RewardSettings Error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-grit-50 to-neutral-50 flex items-center justify-center p-6">
+          <div className="bg-white rounded-3xl p-8 shadow-xl border border-red-200 max-w-md w-full">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FaExclamationTriangle className="text-3xl text-red-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-red-800 mb-4">
+                ご褒美ページでエラーが発生しました
+              </h2>
+              <p className="text-red-600 mb-6">
+                データに問題があるか、アプリが予期しない状態になっています。
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3 px-6 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300"
+                >
+                  ページをリロード
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm('全てのご褒美データを削除してリセットしますか？')) {
+                      localStorage.removeItem('grit-tracker-storage');
+                      window.location.reload();
+                    }
+                  }}
+                  className="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold py-3 px-6 rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300"
+                >
+                  データをリセット
+                </button>
+              </div>
+              {this.state.error && (
+                <details className="mt-4 text-left">
+                  <summary className="text-sm text-gray-600 cursor-pointer">エラー詳細</summary>
+                  <pre className="text-xs text-gray-500 mt-2 bg-gray-100 p-2 rounded overflow-x-auto">
+                    {this.state.error}
+                  </pre>
+                </details>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const RewardSettings: React.FC = () => {
   const { 
@@ -85,22 +154,6 @@ const RewardSettings: React.FC = () => {
     if (window.confirm(`「${rewardContent}」を削除しますか？`)) {
       deleteRewardSetting(id);
       alert('ご褒美を削除しました。');
-    }
-  };
-
-  const handleToggleCompleted = (reward: typeof rewardSettings[0]) => {
-    if (reward.isCompleted) {
-      // 完了済みを未完了に戻す
-      if (window.confirm(`「${reward.rewardContent}」を未済に戻しますか？`)) {
-        updateRewardSetting(reward.id, { isCompleted: false, completedAt: undefined });
-        alert('ステータスを未済に変更しました。');
-      }
-    } else {
-      // 未完了を完了にする
-      if (window.confirm(`「${reward.rewardContent}」を済にしますか？`)) {
-        updateRewardSetting(reward.id, { isCompleted: true, completedAt: new Date() });
-        alert('おめでとうございます！ステータスを済に変更しました。🎉');
-      }
     }
   };
 
@@ -244,19 +297,19 @@ const RewardSettings: React.FC = () => {
                           />
                         </div>
                       </div>
-                      <div className="flex space-x-4">
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 justify-center sm:justify-start">
                         <button
                           onClick={handleSaveEdit}
-                          className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg flex items-center space-x-2"
+                          className="flex items-center justify-center space-x-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-md hover:shadow-lg text-sm font-medium min-w-[80px]"
                         >
-                          <FaCheck />
+                          <FaCheck className="text-xs" />
                           <span>保存</span>
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="bg-gray-500 text-white px-6 py-3 rounded-xl hover:bg-gray-600 transition-colors shadow-lg flex items-center space-x-2"
+                          className="flex items-center justify-center space-x-1.5 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all shadow-md hover:shadow-lg text-sm font-medium min-w-[80px]"
                         >
-                          <FaTimes />
+                          <FaTimes className="text-xs" />
                           <span>キャンセル</span>
                         </button>
                       </div>
@@ -283,7 +336,6 @@ const RewardSettings: React.FC = () => {
                             目標: {reward.targetScore.toLocaleString()}pt
                           </p>
                         </div>
-
                       </div>
 
                       {/* 進捗バー - スターバックス風 */}
@@ -313,6 +365,22 @@ const RewardSettings: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* ステータス変更ボタン */}
+                      {cumulativeScore >= reward.targetScore && !reward.isCompleted && (
+                        <div className="mb-4">
+                          <button
+                            onClick={() => updateRewardSetting(reward.id, { 
+                              isCompleted: true, 
+                              completedAt: new Date() 
+                            })}
+                            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-6 rounded-xl hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                          >
+                            <span className="text-2xl">🎉</span>
+                            <span>ご褒美をゲットする！</span>
+                          </button>
+                        </div>
+                      )}
+                      
                       {/* ステータス - スターバックス風 */}
                       {reward.isCompleted ? (
                         <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
@@ -322,7 +390,13 @@ const RewardSettings: React.FC = () => {
                           </div>
                           {reward.completedAt && (
                             <p className="text-sm text-green-600 mt-1">
-                              達成日: {reward.completedAt.toLocaleDateString()}
+                              達成日: {(() => {
+                                try {
+                                  return new Date(reward.completedAt).toLocaleDateString();
+                                } catch {
+                                  return '日付不明';
+                                }
+                              })()}
                             </p>
                           )}
                         </div>
@@ -363,26 +437,25 @@ const RewardSettings: React.FC = () => {
                             </button>
                           </>
                         )}
-                        {/* ステータス変更ボタン */}
-                        {reward.isCompleted ? (
+                        
+                        {/* 完了済みのご褒美もリセット可能 */}
+                        {reward.isCompleted && (
                           <button
-                            onClick={() => handleToggleCompleted(reward)}
-                            className="flex items-center justify-center space-x-2 bg-green-200 hover:bg-green-300 text-green-700 px-4 py-2 rounded-lg transition-colors text-sm min-w-[120px]"
-                            title="未済に戻す"
+                            onClick={() => {
+                              if (window.confirm('このご褒美を未完了に戻しますか？')) {
+                                updateRewardSetting(reward.id, { 
+                                  isCompleted: false, 
+                                  completedAt: undefined 
+                                });
+                              }
+                            }}
+                            className="flex items-center justify-center space-x-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all shadow-md hover:shadow-lg text-sm min-w-[80px] sm:min-w-[60px]"
+                            title="未完了に戻す"
                           >
-                            <FaToggleOff className="text-sm" />
-                            <span>未済に戻す</span>
+                            <span>↺</span>
+                            <span className="text-sm sm:hidden">リセット</span>
                           </button>
-                        ) : cumulativeScore >= reward.targetScore ? (
-                          <button
-                            onClick={() => handleToggleCompleted(reward)}
-                            className="flex items-center justify-center space-x-2 bg-grit-500 hover:bg-grit-600 text-white px-4 py-2 rounded-lg transition-colors text-sm min-w-[80px]"
-                            title="済にする"
-                          >
-                            <FaToggleOn className="text-sm" />
-                            <span>済</span>
-                          </button>
-                        ) : null}
+                        )}
                       </div>
                     </div>
                   )}
@@ -436,4 +509,12 @@ const RewardSettings: React.FC = () => {
   );
 };
 
-export default RewardSettings;
+const WrappedRewardSettings: React.FC = () => {
+  return (
+    <RewardErrorBoundary>
+      <RewardSettings />
+    </RewardErrorBoundary>
+  );
+};
+
+export default WrappedRewardSettings;

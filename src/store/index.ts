@@ -43,6 +43,14 @@ interface GritStore extends AppState {
   getCumulativeTotalScore: () => number;
   getScoreTrendData: (days: number) => Array<{date: string, score: number, count: number}>;
   getWeeklyRecordCount: () => number;
+  
+  // Debug and Recovery Actions
+  resetAllData: () => void;
+  clearLocalStorage: () => void;
+  
+  // Data Import/Export Actions
+  exportData: () => string;
+  importData: (jsonData: string) => boolean;
 }
 
 export const useGritStore = create<GritStore>()(
@@ -274,6 +282,82 @@ export const useGritStore = create<GritStore>()(
         const thisWeekStart = getWeekStartDate(today);
         const weekLogs = getLogsForWeek(state.gritLogs, thisWeekStart);
         return weekLogs.length;
+      },
+      
+      // Debug and Recovery Actions
+      resetAllData: () => {
+        set({
+          gritLogs: [],
+          weeklyReviews: [],
+          rewardSettings: [],
+          currentView: 'dashboard',
+          weeklyStats: {},
+          monthlyStats: {},
+        });
+      },
+      
+      clearLocalStorage: () => {
+        localStorage.removeItem('grit-tracker-storage');
+        window.location.reload();
+      },
+      
+      // Data Import/Export Actions
+      exportData: () => {
+        const state = get();
+        const exportData = {
+          gritLogs: state.gritLogs,
+          weeklyReviews: state.weeklyReviews,
+          rewardSettings: state.rewardSettings,
+          weeklyStats: state.weeklyStats,
+          monthlyStats: state.monthlyStats,
+          exportedAt: new Date().toISOString(),
+          version: '2.0'
+        };
+        return JSON.stringify(exportData, null, 2);
+      },
+      
+      importData: (jsonData: string) => {
+        try {
+          const data = JSON.parse(jsonData);
+          
+          // データ形式の検証
+          if (!data.gritLogs || !Array.isArray(data.gritLogs)) {
+            throw new Error('無効なデータ形式です');
+          }
+          
+          // データの変換（日付文字列をDateオブジェクトに）
+          const convertedData = {
+            gritLogs: data.gritLogs.map((log: any) => ({
+              ...log,
+              createdAt: new Date(log.createdAt)
+            })),
+            weeklyReviews: data.weeklyReviews?.map((review: any) => ({
+              ...review,
+              createdAt: new Date(review.createdAt)
+            })) || [],
+            rewardSettings: data.rewardSettings?.map((reward: any) => ({
+              ...reward,
+              createdAt: new Date(reward.createdAt),
+              completedAt: reward.completedAt ? new Date(reward.completedAt) : undefined
+            })) || [],
+            weeklyStats: data.weeklyStats || {},
+            monthlyStats: data.monthlyStats || {}
+          };
+          
+          // stateを更新
+          set({
+            gritLogs: convertedData.gritLogs,
+            weeklyReviews: convertedData.weeklyReviews,
+            rewardSettings: convertedData.rewardSettings,
+            weeklyStats: convertedData.weeklyStats,
+            monthlyStats: convertedData.monthlyStats
+          });
+          
+          return true;
+        } catch (error) {
+          console.error('データインポートエラー:', error);
+          return false;
+        }
       },
     }),
     {

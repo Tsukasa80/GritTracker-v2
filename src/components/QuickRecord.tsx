@@ -204,21 +204,21 @@ const QuickRecord: React.FC = () => {
           </div>
 
           {/* ボタン */}
-          <div className="flex space-x-4 pt-4">
+          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-6">
             <button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-grit-500 to-grit-600 text-white px-4 py-2 rounded-lg font-medium text-sm hover:from-grit-600 hover:to-grit-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center space-x-1.5"
+              className="flex-1 bg-gradient-to-r from-grit-500 to-grit-600 text-white px-6 py-3 rounded-lg font-semibold text-base hover:from-grit-600 hover:to-grit-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center space-x-2"
             >
-              <FaSave className="text-sm" />
+              <FaSave className="text-base" />
               <span>記録を保存</span>
             </button>
             
             <button
               type="button"
               onClick={handleReset}
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-gray-600 transition-colors shadow-md flex items-center justify-center space-x-1.5"
+              className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-lg font-semibold text-base hover:from-gray-600 hover:to-gray-700 transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center space-x-2 sm:w-32"
             >
-              <FaTimes className="text-sm" />
+              <FaTimes className="text-base" />
               <span>リセット</span>
             </button>
           </div>

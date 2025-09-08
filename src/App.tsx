@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGritStore } from './store';
-import { FaChartLine, FaPlus, FaGift, FaBars, FaHistory, FaEdit } from 'react-icons/fa';
+import { FaChartLine, FaPlus, FaGift, FaBars, FaHistory, FaEdit, FaExclamationTriangle, FaDownload, FaUpload } from 'react-icons/fa';
 import Dashboard from './components/Dashboard';
 import QuickRecord from './components/QuickRecord';
 import WeeklyReview from './components/WeeklyReview';
@@ -8,9 +8,71 @@ import WeeklyReviewHistory from './components/WeeklyReviewHistory';
 import RewardSettings from './components/RewardSettings';
 
 function App() {
-  const { currentView, setCurrentView } = useGritStore();
+  const { currentView, setCurrentView, clearLocalStorage, resetAllData, exportData, importData } = useGritStore();
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [, setError] = useState<string | null>(null);
+  const [showErrorBanner, setShowErrorBanner] = useState(false);
+  
+  useEffect(() => {
+    // エラーハンドリング
+    const handleError = (event: ErrorEvent) => {
+      console.error('App Error:', event.error);
+      setError(event.message);
+      setShowErrorBanner(true);
+    };
+    
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+  
+  const handleExportData = () => {
+    try {
+      const jsonData = exportData();
+      const blob = new Blob([jsonData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+      a.href = url;
+      a.download = `grittracker-data-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      alert('データをエクスポートしました！📁');
+    } catch (error) {
+      alert('エクスポートに失敗しました。');
+    }
+  };
+  
+  const handleImportData = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const jsonData = event.target?.result as string;
+          const success = importData(jsonData);
+          if (success) {
+            alert('データをインポートしました！✨ ページを更新します。');
+            window.location.reload();
+          } else {
+            alert('インポートに失敗しました。ファイル形式を確認してください。');
+          }
+        } catch (error) {
+          alert('ファイルの読み込みに失敗しました。');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
 
   const navigationItems = [
     { 
@@ -64,6 +126,61 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-grit-50 via-neutral-50 to-accent-light">
+      {/* エラーバナー */}
+      {showErrorBanner && (
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-red-600 text-white p-4">
+          <div className="container mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              <FaExclamationTriangle className="text-xl flex-shrink-0" />
+              <div>
+                <div className="font-semibold">アプリでエラーが発生しました</div>
+                <div className="text-sm opacity-90">
+                  スマホで表示されない問題の可能性があります。データをリセットしてみてください。
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={handleExportData}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+              >
+                <FaDownload className="text-xs" />
+                <span>エクスポート</span>
+              </button>
+              <button
+                onClick={handleImportData}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors flex items-center space-x-1"
+              >
+                <FaUpload className="text-xs" />
+                <span>インポート</span>
+              </button>
+              <button
+                onClick={() => {
+                  resetAllData();
+                  setError(null);
+                  setShowErrorBanner(false);
+                }}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors"
+              >
+                データリセット
+              </button>
+              <button
+                onClick={clearLocalStorage}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors"
+              >
+                完全リセット
+              </button>
+              <button
+                onClick={() => setShowErrorBanner(false)}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors"
+              >
+                閉じる
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Navigation Header */}
       <header className="bg-white shadow-lg sticky top-0 z-50">
         <div className="container mx-auto px-4">
@@ -71,7 +188,20 @@ function App() {
           <nav className="hidden md:flex justify-between items-center py-4">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="text-3xl">🔥</div>
+              <div 
+                className="text-3xl cursor-pointer"
+                onClick={(e) => {
+                  // 5回クリックでデバッグモード
+                  const clicks = (e.target as any).__clicks || 0;
+                  (e.target as any).__clicks = clicks + 1;
+                  if (clicks === 4) {
+                    setShowErrorBanner(true);
+                    (e.target as any).__clicks = 0;
+                  }
+                }}
+              >
+                🔥
+              </div>
               <div>
                 <h1 className="text-2xl font-bold text-grit-600">GritTracker</h1>
                 <p className="text-xs text-gray-500">粘り力を可視化する</p>
@@ -108,7 +238,20 @@ function App() {
             <div className="flex justify-between items-center py-4">
               {/* Mobile Logo */}
               <div className="flex items-center space-x-2">
-                <div className="text-2xl">🔥</div>
+                <div 
+                  className="text-2xl cursor-pointer"
+                  onClick={(e) => {
+                    // 5回クリックでデバッグモード
+                    const clicks = (e.target as any).__clicks || 0;
+                    (e.target as any).__clicks = clicks + 1;
+                    if (clicks === 4) {
+                      setShowErrorBanner(true);
+                      (e.target as any).__clicks = 0;
+                    }
+                  }}
+                >
+                  🔥
+                </div>
                 <div>
                   <h1 className="text-xl font-bold text-grit-600">GritTracker</h1>
                 </div>
