@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useGritStore } from '../store';
 import { getWeekStartDate, getWeekEndDate, getLogsForWeek, formatTimeFromMinutes } from '../utils';
-import { FaStar, FaSave, FaCalendarWeek, FaChartBar, FaClock, FaClipboardList } from 'react-icons/fa';
+import { FaStar, FaSave, FaCalendarWeek, FaChartBar, FaClock, FaClipboardList, FaHistory } from 'react-icons/fa';
 
 const WeeklyReview: React.FC = () => {
-  const { gritLogs, saveWeeklyReview, getWeeklyReview } = useGritStore();
+  const { gritLogs, saveWeeklyReview, getWeeklyReview, setCurrentView } = useGritStore();
   
   // 今週の日付を計算
   const today = new Date();
@@ -73,6 +73,16 @@ const WeeklyReview: React.FC = () => {
       <div className="max-w-6xl mx-auto p-6 space-y-8">
         {/* ヘッダー - スターバックス風 */}
         <div className="text-center py-8">
+          <div className="flex items-center justify-center mb-6">
+            <button
+              onClick={() => setCurrentView('review-history')}
+              className="flex items-center space-x-2 px-4 py-2 text-grit-600 hover:text-grit-800 hover:bg-grit-100 rounded-xl transition-colors mr-4"
+            >
+              <FaHistory />
+              <span>過去の振返りを見る</span>
+            </button>
+          </div>
+          
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-grit-500 to-grit-600 rounded-full mb-4 shadow-lg">
             <FaClipboardList className="text-3xl text-white" />
           </div>

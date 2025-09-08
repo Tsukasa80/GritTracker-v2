@@ -58,7 +58,7 @@ export interface AppState {
   rewardSettings: RewardSetting[];
   
   // UI State
-  currentView: 'dashboard' | 'record' | 'review' | 'rewards';
+  currentView: 'dashboard' | 'record' | 'review' | 'review-history' | 'rewards';
   
   // Statistics Cache
   weeklyStats: Record<string, WeeklyStats>; // weekStartDate -> stats

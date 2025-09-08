@@ -1,9 +1,10 @@
 import React from 'react';
 import { useGritStore } from './store';
-import { FaChartLine, FaPlus, FaClipboardList, FaGift, FaBars } from 'react-icons/fa';
+import { FaChartLine, FaPlus, FaGift, FaBars, FaHistory, FaEdit } from 'react-icons/fa';
 import Dashboard from './components/Dashboard';
 import QuickRecord from './components/QuickRecord';
 import WeeklyReview from './components/WeeklyReview';
+import WeeklyReviewHistory from './components/WeeklyReviewHistory';
 import RewardSettings from './components/RewardSettings';
 
 function App() {
@@ -27,8 +28,14 @@ function App() {
     { 
       key: 'review', 
       label: '振り返り', 
-      icon: FaClipboardList,
+      icon: FaEdit,
       description: '週次レビュー'
+    },
+    { 
+      key: 'review-history', 
+      label: '履歴', 
+      icon: FaHistory,
+      description: '過去の振返り'
     },
     { 
       key: 'rewards', 
@@ -46,6 +53,8 @@ function App() {
         return <QuickRecord />;
       case 'review':
         return <WeeklyReview />;
+      case 'review-history':
+        return <WeeklyReviewHistory />;
       case 'rewards':
         return <RewardSettings />;
       default:
