@@ -238,42 +238,43 @@ const WeeklyReviewHistory: React.FC = () => {
                   className="bg-white/90 backdrop-blur-sm border border-grit-200 rounded-2xl p-6 hover:shadow-lg transition-all cursor-pointer"
                   onClick={() => setSelectedReview(review.id)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <FaCalendarAlt className="text-grit-600" />
-                        <h3 className="text-lg font-bold text-grit-800">
-                          {review.weekStartDate} 〜 {getWeekEndDate(new Date(review.weekStartDate))}
-                        </h3>
-                      </div>
-                      
-                      <div className="flex items-center space-x-6 text-sm text-grit-600 mb-3">
-                        <span className="flex items-center space-x-1">
-                          <FaList className="text-grit-500" />
-                          <span>{weekLogs.length}件の記録</span>
+                  <div className="space-y-4">
+                    {/* ヘッダー部分 */}
+                    <div className="flex items-center space-x-3">
+                      <FaCalendarAlt className="text-grit-600" />
+                      <h3 className="text-lg font-bold text-grit-800">
+                        {review.weekStartDate} 〜 {getWeekEndDate(new Date(review.weekStartDate))}
+                      </h3>
+                    </div>
+                    
+                    {/* 統計情報 */}
+                    <div className="grid grid-cols-2 sm:flex sm:items-center sm:space-x-6 gap-2 sm:gap-0 text-sm text-grit-600">
+                      <span className="flex items-center space-x-1">
+                        <FaList className="text-grit-500" />
+                        <span>{weekLogs.length}件の記録</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <FaClock className="text-endurance-500" />
+                        <span>{formatTimeFromMinutes(totalTime)}</span>
+                      </span>
+                      <span className="bg-grit-100 text-grit-700 px-3 py-1 rounded-full font-semibold text-center">
+                        {totalScore}pt
+                      </span>
+                      {review.bestOfWeek.length > 0 && (
+                        <span className="bg-endurance-100 text-endurance-700 px-3 py-1 rounded-full font-semibold flex items-center justify-center space-x-1">
+                          <FaStar className="text-xs" />
+                          <span>TOP{review.bestOfWeek.length}</span>
                         </span>
-                        <span className="flex items-center space-x-1">
-                          <FaClock className="text-endurance-500" />
-                          <span>{formatTimeFromMinutes(totalTime)}</span>
-                        </span>
-                        <span className="bg-grit-100 text-grit-700 px-3 py-1 rounded-full font-semibold">
-                          {totalScore}pt
-                        </span>
-                        {review.bestOfWeek.length > 0 && (
-                          <span className="bg-endurance-100 text-endurance-700 px-3 py-1 rounded-full font-semibold flex items-center space-x-1">
-                            <FaStar className="text-xs" />
-                            <span>TOP{review.bestOfWeek.length}</span>
-                          </span>
-                        )}
-                      </div>
+                      )}
+                    </div>
 
+                    {/* 作成日とボタン */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="text-sm text-grit-500">
                         作成日: {new Date(review.createdAt).toLocaleDateString('ja-JP')}
                       </div>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      <button className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-grit-500 to-grit-600 text-white rounded-xl hover:from-grit-600 hover:to-grit-700 transition-all">
+                      
+                      <button className="flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-grit-500 to-grit-600 text-white rounded-xl hover:from-grit-600 hover:to-grit-700 transition-all w-full sm:w-auto">
                         <FaEye />
                         <span>詳細を見る</span>
                       </button>
