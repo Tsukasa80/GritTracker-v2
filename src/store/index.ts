@@ -43,6 +43,8 @@ interface GritStore extends AppState {
   getCumulativeTotalScore: () => number;
   getScoreTrendData: (days: number) => Array<{date: string, score: number, count: number}>;
   getWeeklyRecordCount: () => number;
+  getWeeklyAverageValueAlignment: () => number;
+  getValueAlignmentTrendData: (days: number) => Array<{date: string, score: number, valueAlignment: number, count: number}>;
   
   // Debug and Recovery Actions
   resetAllData: () => void;
@@ -282,6 +284,51 @@ export const useGritStore = create<GritStore>()(
         const thisWeekStart = getWeekStartDate(today);
         const weekLogs = getLogsForWeek(state.gritLogs, thisWeekStart);
         return weekLogs.length;
+      },
+      
+      getWeeklyAverageValueAlignment: () => {
+        const state = get();
+        const today = new Date();
+        const thisWeekStart = getWeekStartDate(today);
+        const weekLogs = getLogsForWeek(state.gritLogs, thisWeekStart);
+        
+        const logsWithValueAlignment = weekLogs.filter(log => log.valueAlignment !== undefined);
+        if (logsWithValueAlignment.length === 0) return 0;
+        
+        const total = logsWithValueAlignment.reduce((sum, log) => sum + (log.valueAlignment || 0), 0);
+        return Number((total / logsWithValueAlignment.length).toFixed(1));
+      },
+      
+      getValueAlignmentTrendData: (days) => {
+        const state = get();
+        const today = new Date();
+        const trendData = [];
+        
+        for (let i = days - 1; i >= 0; i--) {
+          const date = new Date(today);
+          date.setDate(today.getDate() - i);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const dateString = `${year}-${month}-${day}`;
+          
+          const dayLogs = state.gritLogs.filter(log => log.date === dateString);
+          const dayScore = dayLogs.reduce((sum, log) => sum + log.enduranceScore, 0);
+          
+          const logsWithValueAlignment = dayLogs.filter(log => log.valueAlignment !== undefined);
+          const avgValueAlignment = logsWithValueAlignment.length > 0
+            ? logsWithValueAlignment.reduce((sum, log) => sum + (log.valueAlignment || 0), 0) / logsWithValueAlignment.length
+            : 0;
+          
+          trendData.push({
+            date: dateString,
+            score: dayScore,
+            valueAlignment: Number(avgValueAlignment.toFixed(1)),
+            count: dayLogs.length
+          });
+        }
+        
+        return trendData;
       },
       
       // Debug and Recovery Actions

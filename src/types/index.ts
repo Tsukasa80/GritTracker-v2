@@ -8,6 +8,8 @@ export interface GritLog {
   enduranceScore: number; // difficultyScore * enduredTime
   details?: string;
   wasSuccessful?: boolean;
+  valueAlignment?: number; // 1-5 (価値の一致度)
+  nextStep?: string; // 次の一歩
   createdAt: Date;
 }
 
@@ -40,6 +42,7 @@ export interface WeeklyStats {
   totalLogs: number;
   averageDifficulty: number;
   totalMinutes: number;
+  averageValueAlignment?: number; // 価値の一致度の平均値
 }
 
 export interface MonthlyStats {

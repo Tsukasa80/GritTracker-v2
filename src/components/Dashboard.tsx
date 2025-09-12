@@ -8,8 +8,9 @@ const Dashboard: React.FC = () => {
     rewardSettings, 
     getWeeklyTotalScore, 
     getCumulativeTotalScore,
-    getScoreTrendData,
     getWeeklyRecordCount,
+    getWeeklyAverageValueAlignment,
+    getValueAlignmentTrendData,
     updateGritLog,
     deleteGritLog
   } = useGritStore();
@@ -27,11 +28,12 @@ const Dashboard: React.FC = () => {
   const weeklyTotalScore = getWeeklyTotalScore();
   const cumulativeTotalScore = getCumulativeTotalScore();
   const weeklyRecordCount = getWeeklyRecordCount();
+  const weeklyAverageValueAlignment = getWeeklyAverageValueAlignment();
 
   // 耐久スコアの推移データ（過去7日間）
   const trendData = useMemo(() => {
-    return getScoreTrendData(7);
-  }, [getScoreTrendData, gritLogs]);
+    return getValueAlignmentTrendData(7);
+  }, [getValueAlignmentTrendData, gritLogs]);
 
   // 最近のログ（直近5件）
   const recentLogs = useMemo(() => {
@@ -195,19 +197,19 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* 平均耐久スコア */}
+          {/* 価値の一致度 */}
           <div className="bg-white/80 backdrop-blur-sm border border-purple-200 p-4 sm:p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
             {/* デスクトップレイアウト */}
             <div className="hidden sm:flex items-center justify-between">
               <div>
                 <div className="inline-flex items-center space-x-2 mb-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <h3 className="text-sm font-semibold text-purple-800">1件あたり平均</h3>
+                  <h3 className="text-sm font-semibold text-purple-800">価値の一致度</h3>
                 </div>
                 <p className="text-3xl font-bold text-purple-700 mb-1">
-                  {weeklyRecordCount > 0 ? Math.round(weeklyTotalScore / weeklyRecordCount) : 0}
+                  {weeklyAverageValueAlignment > 0 ? weeklyAverageValueAlignment : '-'}
                 </p>
-                <p className="text-purple-600 text-xs font-medium">ポイント</p>
+                <p className="text-purple-600 text-xs font-medium">/5 (今週平均)</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <FaChartLine className="text-lg text-white" />
@@ -221,12 +223,12 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="inline-flex items-center space-x-2 mb-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <h3 className="text-sm font-semibold text-purple-800">1件あたり平均</h3>
+                <h3 className="text-sm font-semibold text-purple-800">価値の一致度</h3>
               </div>
               <p className="text-2xl font-bold text-purple-700 mb-1">
-                {weeklyRecordCount > 0 ? Math.round(weeklyTotalScore / weeklyRecordCount) : 0}
+                {weeklyAverageValueAlignment > 0 ? weeklyAverageValueAlignment : '-'}
               </p>
-              <p className="text-purple-600 text-xs font-medium">ポイント</p>
+              <p className="text-purple-600 text-xs font-medium">/5 (今週平均)</p>
             </div>
           </div>
         </div>
@@ -303,6 +305,10 @@ const Dashboard: React.FC = () => {
                       <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 0.3 }} />
                       <stop offset="100%" style={{ stopColor: '#ef4444', stopOpacity: 0.05 }} />
                     </linearGradient>
+                    <linearGradient id="valueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 0.3 }} />
+                      <stop offset="100%" style={{ stopColor: '#8b5cf6', stopOpacity: 0.05 }} />
+                    </linearGradient>
                   </defs>
                   
                   {/* グリッド線 */}
@@ -322,16 +328,27 @@ const Dashboard: React.FC = () => {
                   {/* データライン */}
                   {(() => {
                     const maxScore = Math.max(...trendData.map(d => d.score), 1);
-                    const points = trendData.map((d, i) => {
+                    const maxValueAlignment = 5; // 価値の一致度は最大5
+                    
+                    // 耐久スコアのライン
+                    const scorePoints = trendData.map((d, i) => {
                       const x = 50 + (i * (530 / (trendData.length - 1)));
                       const y = 168 - ((d.score / maxScore) * 128);
                       return `${x},${y}`;
                     }).join(' ');
                     
+                    // 価値の一致度のライン
+                    const valuePoints = trendData.map((d, i) => {
+                      const x = 50 + (i * (530 / (trendData.length - 1)));
+                      const y = 168 - ((d.valueAlignment / maxValueAlignment) * 128);
+                      return `${x},${y}`;
+                    }).join(' ');
+                    
                     return (
                       <>
+                        {/* 耐久スコアライン */}
                         <polyline
-                          points={points}
+                          points={scorePoints}
                           fill="none"
                           stroke="#ef4444"
                           strokeWidth="3"
@@ -339,18 +356,31 @@ const Dashboard: React.FC = () => {
                           strokeLinejoin="round"
                         />
                         <polygon
-                          points={`${points} 580,168 50,168`}
+                          points={`${scorePoints} 580,168 50,168`}
                           fill="url(#scoreGradient)"
                         />
+                        
+                        {/* 価値の一致度ライン */}
+                        <polyline
+                          points={valuePoints}
+                          fill="none"
+                          stroke="#8b5cf6"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        
                         {/* データポイント */}
                         {trendData.map((d, i) => {
                           const x = 50 + (i * (530 / (trendData.length - 1)));
-                          const y = 168 - ((d.score / maxScore) * 128);
+                          const scoreY = 168 - ((d.score / maxScore) * 128);
+                          const valueY = 168 - ((d.valueAlignment / maxValueAlignment) * 128);
                           return (
                             <g key={i}>
+                              {/* 耐久スコアポイント */}
                               <circle
                                 cx={x}
-                                cy={y}
+                                cy={scoreY}
                                 r="5"
                                 fill="#dc2626"
                                 stroke="white"
@@ -359,12 +389,34 @@ const Dashboard: React.FC = () => {
                               {d.score > 0 && (
                                 <text
                                   x={x}
-                                  y={y - 12}
+                                  y={scoreY - 12}
                                   textAnchor="middle"
                                   className="text-xs font-semibold fill-grit-700"
                                 >
                                   {d.score}
                                 </text>
+                              )}
+                              
+                              {/* 価値の一致度ポイント */}
+                              {d.valueAlignment > 0 && (
+                                <>
+                                  <circle
+                                    cx={x}
+                                    cy={valueY}
+                                    r="4"
+                                    fill="#8b5cf6"
+                                    stroke="white"
+                                    strokeWidth="2"
+                                  />
+                                  <text
+                                    x={x + 10}
+                                    y={valueY + 4}
+                                    textAnchor="middle"
+                                    className="text-xs font-semibold fill-purple-700"
+                                  >
+                                    {d.valueAlignment}
+                                  </text>
+                                </>
                               )}
                             </g>
                           );
@@ -391,6 +443,18 @@ const Dashboard: React.FC = () => {
                     );
                   })}
                 </svg>
+                
+                {/* グラフレジェンド */}
+                <div className="flex justify-center space-x-6 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-0.5 bg-red-500"></div>
+                    <span className="text-sm font-medium text-grit-700">耐久スコア</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-0.5 bg-purple-500"></div>
+                    <span className="text-sm font-medium text-purple-700">価値の一致度</span>
+                  </div>
+                </div>
               </div>
               
               {/* 統計情報 */}
