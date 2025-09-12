@@ -165,31 +165,7 @@ const QuickRecord: React.FC = () => {
             </div>
           )}
 
-          {/* 価値の一致度 */}
-          <div>
-            <label className="block text-sm font-bold text-grit-800 mb-2 flex items-center">
-              <FaStar className="text-blue-500 mr-2" />
-              価値の一致度: <span className="text-blue-600 font-bold ml-2">{formData.valueAlignment}/5</span>
-            </label>
-            <div className="px-3">
-              <select
-                value={formData.valueAlignment}
-                onChange={(e) => setFormData({ ...formData, valueAlignment: parseInt(e.target.value) })}
-                className="w-full px-4 py-3 border-2 border-grit-200 rounded-xl focus:border-grit-500 focus:outline-none transition-colors text-grit-800"
-              >
-                <option value={1}>1 - 全く一致しない</option>
-                <option value={2}>2 - あまり一致しない</option>
-                <option value={3}>3 - 普通</option>
-                <option value={4}>4 - よく一致する</option>
-                <option value={5}>5 - 完全に一致する</option>
-              </select>
-            </div>
-            <p className="text-xs text-grit-600 mt-2 px-3">
-              このタスクは、あなたの価値観や目標とどの程度一致していましたか？
-            </p>
-          </div>
-
-          {/* 完了状況 */}
+          {/* 完了状況 */
           <div>
             <label className="block text-sm font-bold text-grit-800 mb-3 flex items-center">
               <FaStar className="text-endurance-500 mr-2" />
@@ -219,6 +195,44 @@ const QuickRecord: React.FC = () => {
             </div>
           </div>
 
+          {/* 詳細メモ */
+          <div>
+            <label className="block text-sm font-bold text-grit-800 mb-2">
+              感想や詳細（任意）
+            </label>
+            <textarea
+              value={formData.details}
+              onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+              placeholder="どんなことが大変でしたか？どう乗り越えましたか？"
+              rows={4}
+              className="w-full px-4 py-3 border-2 border-grit-200 rounded-xl focus:border-grit-500 focus:outline-none transition-colors text-grit-800 placeholder-neutral-400 resize-none"
+            />
+          </div>
+
+          {/* 価値の一致度 */}
+          <div>
+            <label className="block text-sm font-bold text-grit-800 mb-2 flex items-center">
+              <FaStar className="text-blue-500 mr-2" />
+              価値の一致度: <span className="text-blue-600 font-bold ml-2">{formData.valueAlignment}/5</span>
+            </label>
+            <div className="px-3">
+              <select
+                value={formData.valueAlignment}
+                onChange={(e) => setFormData({ ...formData, valueAlignment: parseInt(e.target.value) })}
+                className="w-full px-4 py-3 border-2 border-grit-200 rounded-xl focus:border-grit-500 focus:outline-none transition-colors text-grit-800"
+              >
+                <option value={1}>1 - 全く一致しない</option>
+                <option value={2}>2 - あまり一致しない</option>
+                <option value={3}>3 - 普通</option>
+                <option value={4}>4 - よく一致する</option>
+                <option value={5}>5 - 完全に一致する</option>
+              </select>
+            </div>
+            <p className="text-xs text-grit-600 mt-2 px-3">
+              このタスクは、あなたの価値観や目標とどの程度一致していましたか？
+            </p>
+          </div>
+
           {/* 次の一歩 */}
           <div>
             <label className="block text-sm font-bold text-grit-800 mb-2">
@@ -234,20 +248,6 @@ const QuickRecord: React.FC = () => {
             <p className="text-xs text-grit-600 mt-2">
               この経験を活かして、次に取り組みたいことがあれば記録してください。
             </p>
-          </div>
-
-          {/* 詳細メモ */}
-          <div>
-            <label className="block text-sm font-bold text-grit-800 mb-2">
-              感想や詳細（任意）
-            </label>
-            <textarea
-              value={formData.details}
-              onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-              placeholder="どんなことが大変でしたか？どう乗り越えましたか？"
-              rows={4}
-              className="w-full px-4 py-3 border-2 border-grit-200 rounded-xl focus:border-grit-500 focus:outline-none transition-colors text-grit-800 placeholder-neutral-400 resize-none"
-            />
           </div>
 
           {/* ボタン */}
