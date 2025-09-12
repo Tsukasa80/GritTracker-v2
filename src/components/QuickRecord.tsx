@@ -165,7 +165,7 @@ const QuickRecord: React.FC = () => {
             </div>
           )}
 
-          {/* 完了状況 */
+          {/* 完了状況 */}
           <div>
             <label className="block text-sm font-bold text-grit-800 mb-3 flex items-center">
               <FaStar className="text-endurance-500 mr-2" />
@@ -195,7 +195,7 @@ const QuickRecord: React.FC = () => {
             </div>
           </div>
 
-          {/* 詳細メモ */
+          {/* 詳細メモ */}
           <div>
             <label className="block text-sm font-bold text-grit-800 mb-2">
               感想や詳細（任意）
