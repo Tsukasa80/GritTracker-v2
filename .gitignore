@@ -48,3 +48,6 @@ ehthumbs.db
 
 # Claude Code
 .claude/
+
+# Separate Projects
+PomodoroTimer/
