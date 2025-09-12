@@ -10,6 +10,7 @@ const Dashboard: React.FC = () => {
     getCumulativeTotalScore,
     getWeeklyRecordCount,
     getWeeklyAverageValueAlignment,
+    getWeeklyAverageDifficulty,
     getValueAlignmentTrendData,
     updateGritLog,
     deleteGritLog
@@ -21,6 +22,8 @@ const Dashboard: React.FC = () => {
     difficultyScore: number;
     enduredTime: number;
     details: string;
+    valueAlignment: number;
+    nextStep: string;
   } | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
@@ -29,6 +32,7 @@ const Dashboard: React.FC = () => {
   const cumulativeTotalScore = getCumulativeTotalScore();
   const weeklyRecordCount = getWeeklyRecordCount();
   const weeklyAverageValueAlignment = getWeeklyAverageValueAlignment();
+  const weeklyAverageDifficulty = getWeeklyAverageDifficulty();
 
   // 耐久スコアの推移データ（過去7日間）
   const trendData = useMemo(() => {
@@ -62,6 +66,8 @@ const Dashboard: React.FC = () => {
       difficultyScore: log.difficultyScore,
       enduredTime: log.enduredTime,
       details: log.details || '',
+      valueAlignment: log.valueAlignment || 3,
+      nextStep: log.nextStep || '',
     });
   };
 
@@ -103,7 +109,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* メインスタッツ */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
           {/* 今週の合計耐久スコア */}
           <div className="bg-white/80 backdrop-blur-sm border border-grit-200 p-4 sm:p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
             {/* デスクトップレイアウト */}
@@ -229,6 +235,41 @@ const Dashboard: React.FC = () => {
                 {weeklyAverageValueAlignment > 0 ? weeklyAverageValueAlignment : '-'}
               </p>
               <p className="text-purple-600 text-xs font-medium">/5 (今週平均)</p>
+            </div>
+          </div>
+
+          {/* 苦しさレベル平均 */}
+          <div className="bg-white/80 backdrop-blur-sm border border-orange-200 p-4 sm:p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300">
+            {/* デスクトップレイアウト */}
+            <div className="hidden sm:flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center space-x-2 mb-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <h3 className="text-sm font-semibold text-orange-800">苦しさレベル</h3>
+                </div>
+                <p className="text-3xl font-bold text-orange-700 mb-1">
+                  {weeklyAverageDifficulty > 0 ? weeklyAverageDifficulty : '-'}
+                </p>
+                <p className="text-orange-600 text-xs font-medium">/10 (今週平均)</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                <FaChartLine className="text-lg text-white" />
+              </div>
+            </div>
+            
+            {/* モバイルレイアウト */}
+            <div className="sm:hidden text-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-3">
+                <FaChartLine className="text-lg text-white" />
+              </div>
+              <div className="inline-flex items-center space-x-2 mb-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <h3 className="text-sm font-semibold text-orange-800">苦しさレベル</h3>
+              </div>
+              <p className="text-2xl font-bold text-orange-700 mb-1">
+                {weeklyAverageDifficulty > 0 ? weeklyAverageDifficulty : '-'}
+              </p>
+              <p className="text-orange-600 text-xs font-medium">/10 (今週平均)</p>
             </div>
           </div>
         </div>
@@ -553,6 +594,34 @@ const Dashboard: React.FC = () => {
                             className="w-full p-3 border border-grit-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grit-500 resize-none"
                           />
                         </div>
+                        
+                        {/* 価値の一致度 */}
+                        <div>
+                          <label className="block text-sm font-medium text-grit-700 mb-1">価値の一致度</label>
+                          <select
+                            value={editingData.valueAlignment}
+                            onChange={(e) => setEditingData({...editingData, valueAlignment: parseInt(e.target.value)})}
+                            className="w-full p-3 border border-grit-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grit-500"
+                          >
+                            <option value={1}>1 - 全く一致しない</option>
+                            <option value={2}>2 - あまり一致しない</option>
+                            <option value={3}>3 - 普通</option>
+                            <option value={4}>4 - よく一致する</option>
+                            <option value={5}>5 - 完全に一致する</option>
+                          </select>
+                        </div>
+                        
+                        {/* 次の一歩 */}
+                        <div>
+                          <label className="block text-sm font-medium text-grit-700 mb-1">次の一歩</label>
+                          <input
+                            type="text"
+                            value={editingData.nextStep}
+                            onChange={(e) => setEditingData({...editingData, nextStep: e.target.value})}
+                            className="w-full p-3 border border-grit-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-grit-500"
+                            placeholder="次にどんな行動を取りますか？"
+                          />
+                        </div>
                       </div>
                       
                       {/* アクションボタン - 詳細欄の下部に配置 */}
@@ -600,6 +669,18 @@ const Dashboard: React.FC = () => {
                             <p className="text-grit-700 italic bg-neutral-50 p-3 rounded-lg border-l-4 border-neutral-500">
                               "{log.details}"
                             </p>
+                          )}
+                          {log.valueAlignment && (
+                            <div className="flex items-center space-x-2 text-sm text-purple-700 bg-purple-50 p-2 rounded-lg">
+                              <span className="font-medium">価値の一致度:</span>
+                              <span className="font-bold">{log.valueAlignment}/5</span>
+                            </div>
+                          )}
+                          {log.nextStep && (
+                            <div className="text-grit-700 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500">
+                              <span className="font-medium text-blue-700">次の一歩: </span>
+                              {log.nextStep}
+                            </div>
                           )}
                         </div>
                         <div className="flex items-center space-x-3 ml-6">
@@ -661,6 +742,18 @@ const Dashboard: React.FC = () => {
                           <p className="text-grit-700 italic bg-neutral-50 p-3 rounded-lg border-l-4 border-neutral-500 mb-3">
                             "{log.details}"
                           </p>
+                        )}
+                        {log.valueAlignment && (
+                          <div className="flex items-center space-x-2 text-sm text-purple-700 bg-purple-50 p-2 rounded-lg mb-3">
+                            <span className="font-medium">価値の一致度:</span>
+                            <span className="font-bold">{log.valueAlignment}/5</span>
+                          </div>
+                        )}
+                        {log.nextStep && (
+                          <div className="text-grit-700 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500 mb-3">
+                            <span className="font-medium text-blue-700">次の一歩: </span>
+                            {log.nextStep}
+                          </div>
                         )}
                         <div className="flex space-x-3 pt-2">
                           <button

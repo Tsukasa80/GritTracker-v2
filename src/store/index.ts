@@ -44,6 +44,7 @@ interface GritStore extends AppState {
   getScoreTrendData: (days: number) => Array<{date: string, score: number, count: number}>;
   getWeeklyRecordCount: () => number;
   getWeeklyAverageValueAlignment: () => number;
+  getWeeklyAverageDifficulty: () => number;
   getValueAlignmentTrendData: (days: number) => Array<{date: string, score: number, valueAlignment: number, count: number}>;
   
   // Debug and Recovery Actions
@@ -297,6 +298,18 @@ export const useGritStore = create<GritStore>()(
         
         const total = logsWithValueAlignment.reduce((sum, log) => sum + (log.valueAlignment || 0), 0);
         return Number((total / logsWithValueAlignment.length).toFixed(1));
+      },
+      
+      getWeeklyAverageDifficulty: () => {
+        const state = get();
+        const today = new Date();
+        const thisWeekStart = getWeekStartDate(today);
+        const weekLogs = getLogsForWeek(state.gritLogs, thisWeekStart);
+        
+        if (weekLogs.length === 0) return 0;
+        
+        const total = weekLogs.reduce((sum, log) => sum + log.difficultyScore, 0);
+        return Number((total / weekLogs.length).toFixed(1));
       },
       
       getValueAlignmentTrendData: (days) => {
